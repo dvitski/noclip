@@ -1,18 +1,15 @@
 package me.andante.noclip.impl.client;
 
-import me.andante.noclip.api.NoClip;
 import me.andante.noclip.api.client.NoClipClient;
 import me.andante.noclip.api.client.NoClipManager;
 import me.andante.noclip.api.client.keybinding.NoClipKeyBindings;
 import me.andante.noclip.impl.ClippingEntity;
+import me.andante.noclip.impl.ClippingUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
 
 @Environment(EnvType.CLIENT)
 public final class NoClipManagerImpl implements NoClipManager {
@@ -53,9 +50,7 @@ public final class NoClipManagerImpl implements NoClipManager {
         }
 
         if (sendToServer) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeBoolean(clipping);
-            ClientPlayNetworking.send(NoClip.PACKET_ID, buf);
+            ClientPlayNetworking.send(new ClippingUpdatePacket(clipping));
         }
     }
 
@@ -64,9 +59,9 @@ public final class NoClipManagerImpl implements NoClipManager {
     /**
      * Receives a clipping update from the server.
      */
-    public static void onServerUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
+    public static void onServerUpdate(ClippingUpdatePacket packet, ClientPlayNetworking.Context context) {
         if (NoClipClient.getConfig().keyBehaviors.noClip.toggles()) {
-            boolean clipping = buf.readBoolean();
+            boolean clipping = packet.clipping();
 
             NoClipManager clipManager = NoClipManager.INSTANCE;
             clipManager.setCanClip(true);

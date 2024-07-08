@@ -3,11 +3,10 @@ package me.andante.noclip.impl;
 import me.andante.noclip.api.NoClip;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +18,10 @@ public final class NoClipImpl implements NoClip, ModInitializer {
         LOGGER.info("Initializing {}", MOD_NAME);
 
         // networking
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_ID, this::receiveUpdate);
+        PayloadTypeRegistry.playC2S().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(ClippingUpdatePacket.ID, this::receiveUpdate);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
 
         // death
@@ -30,17 +32,16 @@ public final class NoClipImpl implements NoClip, ModInitializer {
      * Updates the client player on server join.
      */
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
-        PacketByteBuf buf = PacketByteBufs.create();
         ClippingEntity clippingPlayer = ClippingEntity.cast(handler.player);
-        buf.writeBoolean(clippingPlayer.isClipping());
-        ServerPlayNetworking.send(handler.player, PACKET_ID, buf);
+        ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping()));
     }
 
     /**
      * Receives a clipping update from the client.
      */
-    private void receiveUpdate(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
-        boolean clipping = buf.readBoolean();
+    private void receiveUpdate(ClippingUpdatePacket packet, ServerPlayNetworking.Context context) {
+        ServerPlayerEntity player = context.player();
+        boolean clipping = packet.clipping();
         ClippingEntity clippingPlayer = ClippingEntity.cast(player);
         clippingPlayer.setClipping(clipping);
 

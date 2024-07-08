@@ -42,7 +42,7 @@ public class MouseMixin {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci, double scroll, int delta) {
+    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci, boolean discreteMouseScroll, double sensitivity, double e, double f, int deltaHorizontal, int deltaVertical, int delta) {
         if (!NoClipKeyBindings.ACTIVATE_FLIGHT_SPEED_SCROLL.isPressed()) return;
 
         NoClipConfig config = NoClipClient.getConfig();

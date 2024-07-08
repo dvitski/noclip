@@ -5,7 +5,7 @@ plugins {
   id 'idea'
   id 'eclipse'
 
-  id 'fabric-loom' version '0.13-SNAPSHOT'
+  id 'fabric-loom' version '1.7-SNAPSHOT'
   id 'maven-publish'
 
   id 'com.modrinth.minotaur' version '2.+'
@@ -78,7 +78,12 @@ sourceSets { main { resources { srcDirs += dataOutput } } }
 
 /* Resource Processing */
 
-import groovy.json.*
+
+import com.modrinth.minotaur.dependencies.DependencyType
+import com.modrinth.minotaur.dependencies.ModDependency
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 processResources {
   // populate fabric.mod.json with defined version property
   inputs.property 'version', version
@@ -124,7 +129,6 @@ def VER_NAME = "[$project.major_version] $project.mod_name $project.version_id"
 def CHANGELOG = new File("./gradle", "CHANGELOG.md").text
 def SUPPORTED_VERSIONS = Arrays.asList(project.supported_versions.split(','))
 
-import org.kohsuke.github.*
 task github(dependsOn: build) {
   onlyIf { ENV.GITHUB_TOKEN }
   doLast {
@@ -140,7 +144,10 @@ task github(dependsOn: build) {
   }
 }
 
-import com.modrinth.minotaur.dependencies.*
+
+import org.kohsuke.github.GHReleaseBuilder
+import org.kohsuke.github.GitHub
+
 if (ENV.MODRINTH_TOKEN) modrinth {
   token         = ENV.MODRINTH_TOKEN
   projectId     = project.modrinth_id

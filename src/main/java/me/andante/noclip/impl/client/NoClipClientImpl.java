@@ -6,6 +6,7 @@ import me.andante.noclip.api.client.NoClipManager;
 import me.andante.noclip.api.client.command.NoClipClientCommand;
 import me.andante.noclip.api.client.keybinding.NoClipKeyBindings;
 import me.andante.noclip.api.client.render.NoClipHudRenderer;
+import me.andante.noclip.impl.ClippingUpdatePacket;
 import me.andante.noclip.impl.client.keybinding.NoClipKeyBindingsImpl;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -20,7 +21,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 public final class NoClipClientImpl implements NoClipClient, ClientModInitializer {
     public static final NoClipHudRenderer NOCLIP_HUD_RENDERER = new NoClipHudRenderer();
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onInitializeClient() {
         LOGGER.info("Initializing {}-CLIENT", MOD_NAME);
@@ -28,7 +28,7 @@ public final class NoClipClientImpl implements NoClipClient, ClientModInitialize
         Reflection.initialize(NoClipClient.class, NoClipKeyBindings.class, NoClipManager.class);
 
         // networking
-        ClientPlayNetworking.registerGlobalReceiver(PACKET_ID, NoClipManagerImpl::onServerUpdate);
+        ClientPlayNetworking.registerGlobalReceiver(ClippingUpdatePacket.ID, NoClipManagerImpl::onServerUpdate);
         ClientPlayConnectionEvents.DISCONNECT.register(NoClipManagerImpl::onDisconnect);
 
         // keybinding
