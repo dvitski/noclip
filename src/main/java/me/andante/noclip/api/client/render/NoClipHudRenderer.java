@@ -10,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -30,7 +31,7 @@ import static net.minecraft.util.math.MathHelper.sin;
  */
 @Environment(EnvType.CLIENT)
 public class NoClipHudRenderer implements HudRenderCallback {
-    public static final Identifier TEXTURE = new Identifier(NoClip.MOD_ID, "textures/gui/noclip.png");
+    public static final Identifier TEXTURE = Identifier.of(NoClip.MOD_ID, "textures/gui/noclip.png");
 
     private long fade = -1;
     private String activeDebugLine;
@@ -38,7 +39,7 @@ public class NoClipHudRenderer implements HudRenderCallback {
     public NoClipHudRenderer() {}
 
     @Override
-    public void onHudRender(DrawContext context, float tickDelta) {
+    public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
         if (!NoClipManager.INSTANCE.isClipping() || !NoClipClient.getConfig().display.hudIcon) {
             this.fade = -1;
             return;
