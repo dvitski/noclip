@@ -5,7 +5,7 @@ plugins {
   id 'idea'
   id 'eclipse'
 
-  id 'fabric-loom' version '1.7-SNAPSHOT'
+  id 'fabric-loom' version '1.8-SNAPSHOT'
   id 'maven-publish'
 
   id 'com.modrinth.minotaur' version '2.+'
@@ -83,6 +83,7 @@ import com.modrinth.minotaur.dependencies.DependencyType
 import com.modrinth.minotaur.dependencies.ModDependency
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.kohsuke.github.GHReleaseBuilder
 
 processResources {
   // populate fabric.mod.json with defined version property
@@ -145,7 +146,6 @@ task github(dependsOn: build) {
 }
 
 
-import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GitHub
 
 if (ENV.MODRINTH_TOKEN) modrinth {
