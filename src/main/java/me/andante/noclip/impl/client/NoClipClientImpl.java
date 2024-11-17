@@ -5,7 +5,7 @@ import me.andante.noclip.api.client.NoClipClient;
 import me.andante.noclip.api.client.NoClipManager;
 import me.andante.noclip.api.client.command.NoClipClientCommand;
 import me.andante.noclip.api.client.keybinding.NoClipKeyBindings;
-import me.andante.noclip.api.client.render.NoClipHudRenderer;
+import me.andante.noclip.api.client.render.NoClipHudLayer;
 import me.andante.noclip.impl.ClippingUpdatePacket;
 import me.andante.noclip.impl.client.keybinding.NoClipKeyBindingsImpl;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,11 +15,10 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 @Environment(EnvType.CLIENT)
 public final class NoClipClientImpl implements NoClipClient, ClientModInitializer {
-    public static final NoClipHudRenderer NOCLIP_HUD_RENDERER = new NoClipHudRenderer();
+    public static final NoClipHudLayer NOCLIP_HUD_RENDERER = new NoClipHudLayer();
 
     @Override
     public void onInitializeClient() {
@@ -33,7 +32,6 @@ public final class NoClipClientImpl implements NoClipClient, ClientModInitialize
 
         // keybinding
         ClientTickEvents.END_CLIENT_TICK.register(NoClipKeyBindingsImpl::onEndClientTick);
-        HudRenderCallback.EVENT.register(NOCLIP_HUD_RENDERER);
 
         // command
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {

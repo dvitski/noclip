@@ -1,2 +1,3 @@
 accessWidener v2 named
-accessible    class    net/minecraft/client/render/BackgroundRenderer$FogData
+accessible class net/minecraft/client/render/BackgroundRenderer$FogData
+accessible field net/minecraft/client/gui/hud/InGameHud layeredDrawer Lnet/minecraft/client/gui/LayeredDrawer;
