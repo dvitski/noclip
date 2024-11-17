@@ -7,9 +7,9 @@ import me.andante.noclip.api.client.NoClipManager;
 import me.andante.noclip.impl.client.NoClipClientImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.LayeredDrawer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.effect.StatusEffect;
@@ -30,16 +30,16 @@ import static net.minecraft.util.math.MathHelper.sin;
  * <p>The current instance used by the client can be obtained by {@link NoClipClientImpl#NOCLIP_HUD_RENDERER}.</p>
  */
 @Environment(EnvType.CLIENT)
-public class NoClipHudRenderer implements HudRenderCallback {
+public class NoClipHudLayer implements LayeredDrawer.Layer {
     public static final Identifier TEXTURE = Identifier.of(NoClip.MOD_ID, "textures/gui/noclip.png");
 
     private long fade = -1;
     private String activeDebugLine;
 
-    public NoClipHudRenderer() {}
+    public NoClipHudLayer() {}
 
     @Override
-    public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+    public void render(DrawContext context, RenderTickCounter tickCounter) {
         RenderSystem.enableBlend();
 
         if (!NoClipManager.INSTANCE.isClipping() || !NoClipClient.getConfig().display.hudIcon) {
