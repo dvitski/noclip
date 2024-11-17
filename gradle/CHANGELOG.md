@@ -1,1 +1,1 @@
-* Fix translucent HUD when noclipping
+* Fix noclip HUD displaying with F1
