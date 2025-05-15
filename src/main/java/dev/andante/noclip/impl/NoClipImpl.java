@@ -33,7 +33,7 @@ public final class NoClipImpl implements NoClip, ModInitializer {
      */
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(handler.player);
-        ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping()));
+        ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping(), clippingPlayer.canClip()));
     }
 
     /**

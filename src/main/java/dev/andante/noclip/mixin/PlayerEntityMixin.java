@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.impl.ClippingEntity;
 import dev.andante.noclip.impl.PlayerAbilitiesAccess;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -32,6 +33,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
 
     private PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world) {
         super(type, world);
+    }
+
+    @Unique
+    @Override
+    public boolean canClip() {
+        return Permissions.check(this, "noclip", 2);
     }
 
     @Unique

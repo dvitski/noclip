@@ -3,6 +3,8 @@ package dev.andante.noclip.impl;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface ClippingEntity {
+    boolean canClip();
+
     boolean isClipping();
     void setClipping(boolean clipping);
 

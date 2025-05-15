@@ -50,7 +50,7 @@ public final class NoClipManagerImpl implements NoClipManager {
         }
 
         if (sendToServer) {
-            ClientPlayNetworking.send(new ClippingUpdatePacket(clipping));
+            ClientPlayNetworking.send(new ClippingUpdatePacket(clipping, false));
         }
     }
 
@@ -61,7 +61,7 @@ public final class NoClipManagerImpl implements NoClipManager {
      */
     public static void onServerUpdate(ClippingUpdatePacket packet, ClientPlayNetworking.Context context) {
         NoClipManager clipManager = NoClipManager.INSTANCE;
-        clipManager.setCanClip(true);
+        clipManager.setCanClip(packet.canClip());
 
         if (NoClipClient.getConfig().keyBehaviors.noClip.toggles()) {
             boolean clipping = packet.clipping();
