@@ -3,6 +3,7 @@ package dev.andante.noclip.impl.client.keybinding;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.api.client.NoClipClient;
 import dev.andante.noclip.api.client.NoClipManager;
+import dev.andante.noclip.api.client.config.KeyBehavior;
 import dev.andante.noclip.api.client.config.NoClipConfig;
 import dev.andante.noclip.api.client.config.NoClipConfig.AllowIn;
 import dev.andante.noclip.api.client.keybinding.NoClipKeyBindings;
@@ -24,6 +25,8 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
     public static final String RESET_FLIGHT_SPEED_KEY = "text." + NoClip.MOD_ID + ".flight_speed.reset";
+    public static final String TOGGLE_NOCLIP_ON_KEY = "text." + NoClip.MOD_ID + ".toggle_noclip.on";
+    public static final String TOGGLE_NOCLIP_OFF_KEY = "text." + NoClip.MOD_ID + ".toggle_noclip.off";
     private static List<GameMode> allowedModes = createAllowedModes(NoClipClient.CONFIG.getConfig().allowIn);
 
     public static void onEndClientTick(MinecraftClient client) {
@@ -55,6 +58,11 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                 }
 
                 mode.setAbilities(abilities);
+
+                if (config.keyBehaviors.noClip == KeyBehavior.TOGGLE) {
+                    String key = curr ? TOGGLE_NOCLIP_ON_KEY : TOGGLE_NOCLIP_OFF_KEY;
+                    player.sendMessage(Text.translatable(key), true);
+                }
             }
         }
 

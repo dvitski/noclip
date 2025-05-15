@@ -33,7 +33,7 @@ public class NoClipConfig implements ConfigData {
     public static class Display {
         @Comment("Whether or not the icon displayed at the top-right of the HUD is present")
         @Tooltip(count = 2)
-        public boolean hudIcon = true;
+        public boolean hudIcon = false;
 
         @Comment("Whether or not to display speed updates on the action bar (above the hot bar)")
         @Tooltip(count = 2)

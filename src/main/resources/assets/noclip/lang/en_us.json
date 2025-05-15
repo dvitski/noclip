@@ -8,6 +8,8 @@
 
   "text.noclip.flight_speed.set": "[noclip] Speed: %sx",
   "text.noclip.flight_speed.reset": "[noclip] Speed: %sx (reset)",
+  "text.noclip.toggle_noclip.on": "Noclip: On",
+  "text.noclip.toggle_noclip.off": "Noclip: Off",
 
   "key.category.noclip": "noclip",
   "key.noclip.activate_noclip": "Activate Noclip",
@@ -18,7 +20,7 @@
 
   "text.autoconfig.noclip.option.display": "Display",
 
-  "text.autoconfig.noclip.option.display.hudIcon": "Enable HUD Icon",
+  "text.autoconfig.noclip.option.display.hudIcon": "Enable HUD Icon (Experimental)",
   "text.autoconfig.noclip.option.display.hudIcon.@Tooltip[0]": "Whether or not the icon displayed at",
   "text.autoconfig.noclip.option.display.hudIcon.@Tooltip[1]": "the top-right of the HUD is present",
 
