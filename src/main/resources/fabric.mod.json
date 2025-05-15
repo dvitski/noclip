@@ -22,11 +22,21 @@
   "environment": "*",
   "entrypoints": {
     "main": [ "me.andante.noclip.impl.NoClipImpl" ],
-    "client": [ "me.andante.noclip.impl.client.NoClipClientImpl" ],
-    "modmenu": [ "me.andante.noclip.impl.client.integration.NoClipModMenuImpl" ]
+    "client": [
+      "me.andante.noclip.impl.client.NoClipClientImpl"
+    ],
+    "modmenu": [
+        "me.andante.noclip.impl.client.integration.NoClipModMenuImpl"
+    ]
   },
 
-  "mixins": [ "noclip.mixins.json" ],
+  "mixins": [
+    "noclip.mixins.json",
+    {
+      "config": "noclip.client.mixins.json",
+      "environment": "client"
+    }
+  ],
   "accessWidener": "noclip.accesswidener",
 
   "depends": {

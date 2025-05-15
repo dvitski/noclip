@@ -14,21 +14,6 @@
         "PlayerEntityMixin",
         "ProjectileUtilMixin"
     ],
-    "client": [
-        "client.BackgroundRendererMixin",
-        "client.BubbleColumnSoundPlayerMixin",
-        "client.ClientPlayerEntityMixin",
-        "client.ClientPlayerInteractionManagerMixin",
-        "client.DebugHudMixin",
-        "client.EntityRenderDispatcherMixin",
-        "client.GameRendererMixin",
-        "client.InGameHudMixin",
-        "client.InGameOverlayRendererMixin",
-        "client.KeyBindingAccessor",
-        "client.KeyBindingMixin",
-        "client.MouseMixin",
-        "client.WorldRendererMixin"
-    ],
     "injectors": {
         "defaultRequire": 1
   }
