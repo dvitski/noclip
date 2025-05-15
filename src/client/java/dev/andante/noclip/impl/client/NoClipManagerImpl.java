@@ -60,15 +60,17 @@ public final class NoClipManagerImpl implements NoClipManager {
      * Receives a clipping update from the server.
      */
     public static void onServerUpdate(ClippingUpdatePacket packet, ClientPlayNetworking.Context context) {
+        NoClipManager clipManager = NoClipManager.INSTANCE;
+        clipManager.setCanClip(true);
+
         if (NoClipClient.getConfig().keyBehaviors.noClip.toggles()) {
             boolean clipping = packet.clipping();
 
-            NoClipManager clipManager = NoClipManager.INSTANCE;
-            clipManager.setCanClip(true);
             clipManager.setClipping(clipping);
-            clipManager.updateClipping(false);
             if (NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() != clipping) NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(true);
         }
+
+        clipManager.updateClipping(false);
     }
 
     /**
