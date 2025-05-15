@@ -47,4 +47,14 @@ public abstract class EntityMixin {
 
         return original.call();
     }
+
+    @WrapMethod(method = "getFinalGravity")
+    private double onGetFinalGravity(Operation<Double> original) {
+        Entity that = (Entity) (Object) this;
+        if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {
+            return 0.0;
+        }
+
+        return original.call();
+    }
 }
