@@ -1,5 +1,7 @@
 package dev.andante.noclip.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.authlib.GameProfile;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.impl.ClippingEntity;
@@ -97,12 +99,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Prevents the player's pose from updating when clipping.
      */
-    @Inject(method = "updatePose", at = @At("HEAD"), cancellable = true)
-    private void onUpdatePose(CallbackInfo ci) {
+    @WrapMethod(method = "updatePose")
+    private void onUpdatePose(Operation<Void> original) {
         if (this.isClipping()) {
             this.setPose(EntityPose.STANDING);
-            ci.cancel();
+            return;
         }
+
+        original.call();
     }
 
     /**
@@ -125,17 +129,25 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Cancels any player collision code when clipping.
      */
-    @Inject(method = "collideWithEntity", at = @At("HEAD"), cancellable = true)
-    private void onCollideWithEntity(Entity entity, CallbackInfo ci) {
-        if (this.isClipping()) ci.cancel();
+    @WrapMethod(method = "collideWithEntity")
+    private void onCollideWithEntity(Entity entity, Operation<Void> original) {
+        if (this.isClipping()) {
+            return;
+        }
+
+        original.call(entity);
     }
 
     /**
      * Cancels water interaction when clipping.
      */
-    @Inject(method = "onSwimmingStart", at = @At("HEAD"), cancellable = true)
-    private void onOnSwimmingStart(CallbackInfo ci) {
-        if (this.isClipping()) ci.cancel();
+    @WrapMethod(method = "onSwimmingStart")
+    private void onOnSwimmingStart(Operation<Void> original) {
+        if (this.isClipping()) {
+            return;
+        }
+
+        original.call();
     }
 
     /* NBT */

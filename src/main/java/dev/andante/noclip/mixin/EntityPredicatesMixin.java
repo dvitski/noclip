@@ -1,5 +1,7 @@
 package dev.andante.noclip.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.andante.noclip.impl.ClippingEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.predicate.entity.EntityPredicates;
@@ -32,9 +34,15 @@ public class EntityPredicatesMixin {
 
     /**
      * Removes collision entirely from clipping players.
+     *
+     * @return
      */
-    @Inject(method = "canBePushedBy", at = @At("HEAD"), cancellable = true)
-    private static void onCanBePushedBy(Entity entity, CallbackInfoReturnable<Predicate<Entity>> cir) {
-        if (entity instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) cir.setReturnValue(e -> false);
+    @WrapMethod(method = "canBePushedBy")
+    private static Predicate<Entity> onCanBePushedBy(Entity entity, Operation<Predicate<Entity>> original) {
+        if (entity instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {
+            return e -> false;
+        }
+
+        return original.call(entity);
     }
 }
