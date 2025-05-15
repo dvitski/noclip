@@ -21,12 +21,14 @@
 
   "environment": "*",
   "entrypoints": {
-    "main": [ "me.andante.noclip.impl.NoClipImpl" ],
+    "main": [
+      "dev.andante.noclip.impl.NoClipImpl"
+    ],
     "client": [
-      "me.andante.noclip.impl.client.NoClipClientImpl"
+      "dev.andante.noclip.impl.client.NoClipClientImpl"
     ],
     "modmenu": [
-        "me.andante.noclip.impl.client.integration.NoClipModMenuImpl"
+      "dev.andante.noclip.impl.client.integration.NoClipModMenuImpl"
     ]
   },
 
