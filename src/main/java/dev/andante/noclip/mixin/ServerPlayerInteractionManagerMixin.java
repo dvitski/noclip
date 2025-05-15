@@ -22,6 +22,7 @@ public class ServerPlayerInteractionManagerMixin {
             PlayerAbilities abilities = this.player.getAbilities();
             abilities.flying = true;
             abilities.allowFlying = true;
+            abilities.invulnerable = true;
             this.player.sendAbilitiesUpdate();
         }
     }

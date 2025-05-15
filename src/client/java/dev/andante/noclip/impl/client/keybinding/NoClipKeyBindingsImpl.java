@@ -55,6 +55,8 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                         abilities.flying = true;
                         abilities.allowFlying = true;
                     }
+
+                    abilities.invulnerable = true;
                 } else {
                     if (flightConfig.speedScrolling.resetSpeedOnClipOrFlight) {
                         PlayerAbilities def = new PlayerAbilities();
