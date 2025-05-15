@@ -37,8 +37,8 @@ public interface NoClipClientCommand {
 
     static int execute(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         if (!NoClipClient.getConfig().keyBehaviors.noClip.toggles()) throw TOGGLE_EXCEPTION.create();
-        NoClipKeyBindings.ACTIVATE_NOCLIP.forceSetPressed(true);
-        return !NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() ? 1 : 0;
+        NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(true);
+        return NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() ? 1 : 0;
     }
 
     static int executeConfig(CommandContext<FabricClientCommandSource> context) {

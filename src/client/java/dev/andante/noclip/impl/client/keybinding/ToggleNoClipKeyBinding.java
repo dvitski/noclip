@@ -2,7 +2,6 @@ package dev.andante.noclip.impl.client.keybinding;
 
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.api.client.NoClipManager;
-import dev.andante.noclip.mixin.client.KeyBindingAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -31,9 +30,5 @@ public class ToggleNoClipKeyBinding extends StickyKeyBinding {
                 client.player.sendMessage(Text.translatable(ACTIONBAR_KEY).formatted(Formatting.RED), true);
             }
         }
-    }
-
-    public void forceSetPressed(boolean pressed) {
-        ((KeyBindingAccessor) this).setPressed(pressed);
     }
 }
