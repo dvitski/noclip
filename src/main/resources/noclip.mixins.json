@@ -12,7 +12,9 @@
         "LivingEntityMixin",
         "PlayerAbilitiesMixin",
         "PlayerEntityMixin",
-        "ProjectileUtilMixin"
+        "ProjectileUtilMixin",
+        "ServerPlayerInteractionManagerMixin",
+        "ServerPlayNetworkHandlerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -48,8 +48,13 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                 clipping.setClipping(curr);
                 clipping.updateClipping();
 
+                mode.setAbilities(abilities);
+
                 if (curr) {
-                    if (flightConfig.enableFlightOnClip) abilities.flying = true;
+                    if (flightConfig.enableFlightOnClip) {
+                        abilities.flying = true;
+                        abilities.allowFlying = true;
+                    }
                 } else {
                     if (flightConfig.speedScrolling.resetSpeedOnClipOrFlight) {
                         PlayerAbilities def = new PlayerAbilities();
@@ -57,7 +62,7 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                     }
                 }
 
-                mode.setAbilities(abilities);
+                player.sendAbilitiesUpdate();
 
                 if (config.keyBehaviors.noClip == KeyBehavior.TOGGLE) {
                     String key = curr ? TOGGLE_NOCLIP_ON_KEY : TOGGLE_NOCLIP_OFF_KEY;
