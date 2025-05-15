@@ -70,7 +70,7 @@ public final class NoClipManagerImpl implements NoClipManager {
             if (NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() != clipping) NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(true);
         }
 
-        clipManager.updateClipping(false);
+        clipManager.updateClipping();
     }
 
     /**

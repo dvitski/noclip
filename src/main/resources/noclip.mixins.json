@@ -14,7 +14,6 @@
         "PlayerAbilitiesMixin",
         "PlayerEntityMixin",
         "ProjectileUtilMixin",
-        "ServerPlayerInteractionManagerMixin",
         "ServerPlayNetworkHandlerMixin"
     ],
     "injectors": {

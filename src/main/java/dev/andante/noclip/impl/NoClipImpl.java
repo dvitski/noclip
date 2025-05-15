@@ -26,6 +26,7 @@ public final class NoClipImpl implements NoClip, ModInitializer {
 
         // death
         ServerPlayerEvents.COPY_FROM.register(this::copyFrom);
+        ServerPlayerEvents.AFTER_RESPAWN.register(this::afterRespawn);
     }
 
     /**
@@ -56,5 +57,13 @@ public final class NoClipImpl implements NoClip, ModInitializer {
         ClippingEntity clippingOldPlayer = ClippingEntity.cast(oldPlayer);
         ClippingEntity clippingNewPlayer = ClippingEntity.cast(newPlayer);
         clippingNewPlayer.setClipping(clippingOldPlayer.isClipping());
+    }
+
+    private void afterRespawn(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
+        ClippingEntity clippingNewPlayer = ClippingEntity.cast(newPlayer);
+        if (clippingNewPlayer.isClipping()) {
+            ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(false, false));
+            ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(true, true));
+        }
     }
 }
