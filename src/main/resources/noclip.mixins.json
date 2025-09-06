@@ -8,6 +8,7 @@
         "EntityMixin",
         "EntityPredicatesMixin",
         "ExperienceOrbEntityMixin",
+        "ExplosionMixin",
         "GameModeMixin",
         "LivingEntityMixin",
         "PlayerAbilitiesMixin",
