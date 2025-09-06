@@ -13,6 +13,7 @@
         "InGameOverlayRendererMixin",
         "KeyBindingAccessor",
         "KeyBindingMixin",
+        "MouseMixin",
         "WorldRendererMixin"
     ],
     "injectors": {

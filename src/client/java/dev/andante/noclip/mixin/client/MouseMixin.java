@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@SuppressWarnings("InvalidInjectorMethodSignature")
 @Environment(EnvType.CLIENT)
 @Mixin(Mouse.class)
 public class MouseMixin {
@@ -36,13 +35,11 @@ public class MouseMixin {
         method = "onMouseScroll",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerInventory;scrollInHotbar(D)V",
-            shift = At.Shift.BEFORE
+            target = "Lnet/minecraft/entity/player/PlayerInventory;setSelectedSlot(I)V"
         ),
-        locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci, boolean discreteMouseScroll, double sensitivity, double e, double f, int deltaHorizontal, int deltaVertical, int delta) {
+    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
         if (!NoClipKeyBindings.ACTIVATE_FLIGHT_SPEED_SCROLL.isPressed()) return;
 
         NoClipConfig config = NoClipClient.getConfig();
@@ -57,7 +54,7 @@ public class MouseMixin {
 
         float old = abilities.getFlySpeed();
 
-        float speed = MathHelper.clamp(old + (delta * 0.005f), 0.0f, config.flight.speedScrolling.maxSpeed / 20f);
+        float speed = MathHelper.clamp(old + ((float)vertical * 0.005f), 0.0f, config.flight.speedScrolling.maxSpeed / 20f);
         abilities.setFlySpeed(speed);
 
         if (old != speed && NoClipClient.getConfig().display.showSpeedUpdatesOnActionBar) {
