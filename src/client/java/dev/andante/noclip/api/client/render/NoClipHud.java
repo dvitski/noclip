@@ -1,46 +1,41 @@
 package dev.andante.noclip.api.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.api.client.NoClipClient;
 import dev.andante.noclip.api.client.NoClipManager;
-import dev.andante.noclip.impl.client.NoClipClientImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LayeredDrawer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.ColorHelper;
 
 import java.util.Collection;
 import java.util.function.Predicate;
 
 import static net.minecraft.util.math.MathHelper.abs;
-import static net.minecraft.util.math.MathHelper.clamp;
 import static net.minecraft.util.math.MathHelper.sin;
 
 /**
  * Responsible for rendering an indicator on the hud of the player's current clipping state.
- * <p>The current instance used by the client can be obtained by {@link NoClipClientImpl#NOCLIP_HUD_RENDERER}.</p>
  */
 @Environment(EnvType.CLIENT)
-public class NoClipHudLayer implements LayeredDrawer.Layer {
-    public static final Identifier TEXTURE = new Identifier(NoClip.MOD_ID, "textures/gui/noclip.png");
+public class NoClipHud implements HudElement {
+    public static final Identifier TEXTURE = Identifier.of(NoClip.MOD_ID, "textures/hud/noclip.png");
 
     private long fade = -1;
     private String activeDebugLine;
 
-    public NoClipHudLayer() {}
-
     @Override
-    public void render(DrawContext context, float tickDelta) {
-        RenderSystem.enableBlend();
-
+    public void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (!NoClipManager.INSTANCE.isClipping() || !NoClipClient.getConfig().display.hudIcon) {
             this.fade = -1;
             return;
@@ -64,19 +59,16 @@ public class NoClipHudLayer implements LayeredDrawer.Layer {
         float interval = 1000f;
         if (this.fade == -1) this.fade = ms + (long) interval;
         float alpha = abs(sin((ms - this.fade) / interval)) + 0.2F;
-        context.setShaderColor(1.0F, 1.0F, 1.0F, clamp(alpha, 0.0F, 1.0F));
 
         if (client.inGameHud.getDebugHud().shouldShowDebugHud()) {
-            this.renderIcon(context, scaledWidth - 18 - (client.textRenderer.getWidth(this.activeDebugLine) + 4), client.textRenderer.fontHeight + 1);
-        } else this.renderIcon(context, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)));
-
-        context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-        RenderSystem.disableBlend();
+            this.renderIcon(context, scaledWidth - 18 - (client.textRenderer.getWidth(this.activeDebugLine) + 4), client.textRenderer.fontHeight + 1, ColorHelper.getWhite(alpha));
+        } else {
+            this.renderIcon(context, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ColorHelper.getWhite(alpha));
+        }
     }
 
-    public void renderIcon(DrawContext context, int x, int y) {
-        context.drawTexture(TEXTURE, x, y, 0, 0, 18, 18, 18, 18);
+    public void renderIcon(DrawContext context, int x, int y, int color) {
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, 18, 18, 18, 18, color);
     }
 
     public void setActiveDebugLine(String activeDebugLine) {

@@ -8,21 +8,26 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameOverlayRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Environment(EnvType.CLIENT)
 @Mixin(InGameOverlayRenderer.class)
 public class InGameOverlayRendererMixin {
+    @Shadow @Final private MinecraftClient client;
+
     /**
      * Cancels all overlays when clipping.
      */
     @WrapMethod(method = "renderOverlays")
-    private static void onRenderOverlays(MinecraftClient client, MatrixStack matrices, Operation<Void> original) {
+    private void onRenderOverlays(boolean sleeping, float tickProgress, Operation<Void> original) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(client.player);
         if (clippingPlayer.isClipping()) {
             return;
         }
 
-        original.call(client, matrices);
+        original.call(sleeping, tickProgress);
     }
 }
