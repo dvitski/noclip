@@ -15,6 +15,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -40,7 +42,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     @Unique
     @Override
     public boolean canClip() {
-        return Permissions.check(this, "noclip", 2);
+        return true;
     }
 
     @Unique
@@ -72,7 +74,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
      * Attaches the player to their {@link #abilities}.
      */
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(World world, BlockPos pos, float yaw, GameProfile profile, CallbackInfo ci) {
+    private void onInit(World world, GameProfile profile, CallbackInfo ci) {
         PlayerEntity that = (PlayerEntity) (Object) this;
         ((PlayerAbilitiesAccess) this.abilities).setPlayer(that);
     }
@@ -152,13 +154,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
 
     /* NBT */
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void onWriteCustomDataToNbt(NbtCompound nbt, CallbackInfo ci) {
-        nbt.putBoolean(NoClip.NBT_KEY, this.isClipping());
+    @Inject(method = "writeCustomData", at = @At("TAIL"))
+    private void onWriteCustomDataToNbt(WriteView view, CallbackInfo ci) {
+        view.putBoolean(NoClip.NBT_KEY, this.isClipping());
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void onReadCustomDataFromNbt(NbtCompound nbt, CallbackInfo ci) {
-        this.setClipping(nbt.getBoolean(NoClip.NBT_KEY));
+    @Inject(method = "readCustomData", at = @At("TAIL"))
+    private void onReadCustomDataFromNbt(ReadView view, CallbackInfo ci) {
+        this.setClipping(view.getBoolean(NoClip.NBT_KEY, false));
     }
 }

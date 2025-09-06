@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
  */
 public record ClippingUpdatePacket(boolean clipping, boolean canClip) implements CustomPayload {
     public static final PacketCodec<PacketByteBuf, ClippingUpdatePacket> CODEC = CustomPayload.codecOf(ClippingUpdatePacket::write, ClippingUpdatePacket::new);
-    public static final Id<ClippingUpdatePacket> ID = new CustomPayload.Id<>(new Identifier(NoClip.MOD_ID, "update"));
+    public static final Id<ClippingUpdatePacket> ID = new CustomPayload.Id<>(Identifier.of(NoClip.MOD_ID, "update"));
 
     private ClippingUpdatePacket(PacketByteBuf buf) {
         this(buf.readBoolean(), buf.readBoolean());

@@ -12,7 +12,7 @@ public class AreaEffectCloudEntityMixin {
      * Prevents clipping players from being affected by AECs.
      */
     @ModifyArg(
-        method = "tick",
+    method = "serverTick",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Map;containsKey(Ljava/lang/Object;)Z"
