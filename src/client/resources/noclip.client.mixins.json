@@ -4,17 +4,15 @@
     "compatibilityLevel": "JAVA_17",
     "package": "dev.andante.noclip.mixin.client",
     "client": [
-        "BackgroundRendererMixin",
         "BubbleColumnSoundPlayerMixin",
         "ClientPlayerEntityMixin",
         "ClientPlayerInteractionManagerMixin",
         "DebugHudMixin",
-        "EntityRenderDispatcherMixin",
+        "FogModifierMixin",
         "GameRendererMixin",
         "InGameOverlayRendererMixin",
         "KeyBindingAccessor",
         "KeyBindingMixin",
-        "MouseMixin",
         "WorldRendererMixin"
     ],
     "injectors": {
