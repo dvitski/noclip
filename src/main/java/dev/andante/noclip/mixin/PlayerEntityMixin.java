@@ -42,7 +42,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     @Unique
     @Override
     public boolean canClip() {
-        return true;
+        return Permissions.check(this, "noclip", 2);
     }
 
     @Unique
