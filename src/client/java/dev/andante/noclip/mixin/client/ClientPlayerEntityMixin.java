@@ -15,6 +15,7 @@ import net.minecraft.client.recipebook.ClientRecipeBook;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.stat.StatHandler;
+import net.minecraft.util.PlayerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,7 +37,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
      * Updates player clipping value based on set/received client value.
      */
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onConstructor(MinecraftClient client, ClientWorld world, ClientPlayNetworkHandler handler, StatHandler stats, ClientRecipeBook recipeBook, boolean lastSneaking, boolean lastSprinting, CallbackInfo ci) {
+    private void onConstructor(MinecraftClient client, ClientWorld world, ClientPlayNetworkHandler handler, StatHandler stats, ClientRecipeBook recipeBook, PlayerInput lastPlayerInput, boolean lastSprinting, CallbackInfo ci) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(this);
         clippingPlayer.setClipping(NoClipManager.INSTANCE.isClipping());
     }
