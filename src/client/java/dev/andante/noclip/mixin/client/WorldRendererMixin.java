@@ -18,9 +18,9 @@ public class WorldRendererMixin {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"
+            target = "Lnet/minecraft/client/render/WorldRenderer;updateCamera(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;Z)V"
         ),
-        index = 3
+        index = 2
     )
     private boolean onRenderReplaceSpectator(boolean isSpectator) {
         return isSpectator || NoClipManager.INSTANCE.isClipping();

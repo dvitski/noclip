@@ -11,26 +11,29 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.option.StickyKeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public interface NoClipKeyBindings {
-    String CATEGORY = "key.category." + NoClip.MOD_ID;
+    KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of(NoClip.MOD_ID, "category"));
 
     ToggleNoClipKeyBinding ACTIVATE_NOCLIP = (ToggleNoClipKeyBinding) KeyBindingHelper.registerKeyBinding(new ToggleNoClipKeyBinding(
-        "key." + NoClip.MOD_ID + ".activate_noclip",
-        InputUtil.GLFW_KEY_GRAVE_ACCENT, CATEGORY, toggles(behaviors -> behaviors.noClip)
+            "key." + NoClip.MOD_ID + ".activate_noclip",
+            InputUtil.GLFW_KEY_GRAVE_ACCENT, CATEGORY, toggles(behaviors -> behaviors.noClip),
+            true
     ));
 
     KeyBinding ACTIVATE_FLIGHT_SPEED_SCROLL = KeyBindingHelper.registerKeyBinding(new StickyKeyBinding(
-        "key." + NoClip.MOD_ID + ".activate_flight_speed_scroll",
-        InputUtil.UNKNOWN_KEY.getCode(), CATEGORY, toggles(behaviors -> behaviors.flightSpeedActivation)
+            "key." + NoClip.MOD_ID + ".activate_flight_speed_scroll",
+            InputUtil.UNKNOWN_KEY.getCode(), CATEGORY, toggles(behaviors -> behaviors.flightSpeedActivation),
+            true
     ));
 
     KeyBinding RESET_FLIGHT_SPEED = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-        "key." + NoClip.MOD_ID + ".reset_flight_speed", InputUtil.UNKNOWN_KEY.getCode(), CATEGORY
+            "key." + NoClip.MOD_ID + ".reset_flight_speed", InputUtil.UNKNOWN_KEY.getCode(), CATEGORY
     ));
 
     private static BooleanSupplier toggles(Function<NoClipConfig.KeyBehaviors, KeyBehavior> getter) {

@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Environment(EnvType.CLIENT)
 @Mixin(value = GameRenderer.class, priority = 999)
 public class GameRendererMixin {
-    @Shadow @Final MinecraftClient client;
+    @Shadow @Final
+    private MinecraftClient client;
 
     /**
      * Fixes dark hand lighting when clipping and inside a block.
@@ -23,7 +24,7 @@ public class GameRendererMixin {
         method = "renderHand",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V"
+            target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/network/ClientPlayerEntity;I)V"
         ),
         index = 4
     )

@@ -15,8 +15,8 @@ import java.util.function.BooleanSupplier;
 public class ToggleNoClipKeyBinding extends StickyKeyBinding {
     public static final String ACTIONBAR_KEY = "text." + NoClip.MOD_ID + ".server_noclip_not_present";
 
-    public ToggleNoClipKeyBinding(String id, int code, String category, BooleanSupplier toggleGetter) {
-        super(id, code, category, toggleGetter);
+    public ToggleNoClipKeyBinding(String id, int code, Category category, BooleanSupplier toggleGetter, boolean restore) {
+        super(id, code, category, toggleGetter, restore);
     }
 
     @Override

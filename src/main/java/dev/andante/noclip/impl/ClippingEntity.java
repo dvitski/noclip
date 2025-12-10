@@ -1,7 +1,5 @@
 package dev.andante.noclip.impl;
 
-import net.minecraft.entity.player.PlayerEntity;
-
 public interface ClippingEntity {
     boolean canClip();
 
@@ -10,7 +8,7 @@ public interface ClippingEntity {
 
     boolean isClippingInsideWall();
 
-    static ClippingEntity cast(PlayerEntity player) {
+    static ClippingEntity cast(Object player) {
         return (ClippingEntity) player;
     }
 }

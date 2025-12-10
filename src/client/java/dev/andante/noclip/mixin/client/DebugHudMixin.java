@@ -1,6 +1,5 @@
 package dev.andante.noclip.mixin.client;
 
-import dev.andante.noclip.impl.client.NoClipClientImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
@@ -8,17 +7,15 @@ import net.minecraft.client.gui.hud.DebugHud;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Environment(EnvType.CLIENT)
 @Mixin(DebugHud.class)
 public class DebugHudMixin {
     @Shadow @Final private TextRenderer textRenderer;
 
-    /**
+/*    *//**
      * Captures the first line of the debug hud.
-     */
+     *//*
     @ModifyArg(
             method = "getRightText",
             at = @At(
@@ -36,5 +33,5 @@ public class DebugHudMixin {
             NoClipClientImpl.NOCLIP_HUD_RENDERER.setActiveDebugLine(this.textRenderer.getWidth(str2) > this.textRenderer.getWidth(str1) ? str2 : str1);
         }
         return elements;
-    }
+    }*/
 }

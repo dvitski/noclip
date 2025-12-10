@@ -1,25 +1,26 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "compatibilityLevel": "JAVA_17",
-  "package": "dev.andante.noclip.mixin.client",
-  "client": [
-    "BubbleColumnSoundPlayerMixin",
-    "ClientPlayerEntityMixin",
-    "ClientPlayerInteractionManagerMixin",
-    "DebugHudMixin",
-    "EntityRenderDispatcherMixin",
-    "FogModifierMixin",
-    "GameRendererMixin",
-    "InGameOverlayRendererMixin",
-    "KeyBindingAccessor",
-    "KeyBindingMixin",
-    "MouseMixin",
-    "PlayerEntityRenderStateMixin",
-    "WorldRendererMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "mixins": ["PlayerEntityRendererMixin"]
+    "required": true,
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_17",
+    "package": "dev.andante.noclip.mixin.client",
+    "client": [
+        "BubbleColumnSoundPlayerMixin",
+        "ClientPlayerEntityMixin",
+        "ClientPlayerInteractionManagerMixin",
+        "DebugHudMixin",
+        "EntityRenderDispatcherMixin",
+        "EntityRendererMixin",
+        "FogModifierMixin",
+        "GameRendererMixin",
+        "InGameOverlayRendererMixin",
+        "KeyBindingAccessor",
+        "MouseMixin",
+        "PlayerEntityRenderStateMixin",
+        "WorldRendererMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "PlayerEntityRendererMixin"]
 }
