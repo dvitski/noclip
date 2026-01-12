@@ -4,7 +4,10 @@ public interface ClippingEntity {
     boolean canClip();
 
     boolean isClipping();
+
     void setClipping(boolean clipping);
+
+    void setLastCanClip(boolean lastCanClip);
 
     boolean isClippingInsideWall();
 
