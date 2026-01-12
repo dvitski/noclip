@@ -35,7 +35,8 @@ public final class NoClipManagerImpl implements NoClipManager {
     @Override
     public void setCanClip(boolean canClip) {
         this.canClip = canClip;
-        if (!this.canClip) this.updateClipping();
+        if (!this.canClip)
+            this.updateClipping();
     }
 
     @Override
@@ -67,10 +68,11 @@ public final class NoClipManagerImpl implements NoClipManager {
             boolean clipping = packet.clipping();
 
             clipManager.setClipping(clipping);
-            if (NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() != clipping) NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(true);
+            if (NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() != clipping)
+                NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(clipping);
         }
 
-        clipManager.updateClipping();
+        clipManager.updateClipping(false);
     }
 
     /**
