@@ -5,8 +5,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.authlib.GameProfile;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.impl.ClippingEntity;
+import dev.andante.noclip.impl.ClippingUpdatePacket;
 import dev.andante.noclip.impl.PlayerAbilitiesAccess;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -15,9 +17,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,8 +36,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @SuppressWarnings("InvalidInjectorMethodSignature")
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements ClippingEntity {
-    @Shadow @Final private PlayerAbilities abilities;
-    @Unique private boolean clipping;
+    @Shadow
+    @Final
+    private PlayerAbilities abilities;
+    @Unique
+    private boolean clipping;
+    @Unique
+    private boolean lastCanClip;
 
     private PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world) {
         super(type, world);
@@ -60,8 +69,15 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
 
     @Unique
     @Override
+    public void setLastCanClip(boolean lastCanClip) {
+        this.lastCanClip = lastCanClip;
+    }
+
+    @Unique
+    @Override
     public boolean isClippingInsideWall() {
-        if (!this.isClipping()) return false;
+        if (!this.isClipping())
+            return false;
 
         // love this.
         this.noClip = false;
@@ -82,15 +98,31 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Updates the player's clipping value based on our custom parameters.
      */
-    @Inject(
-        method = "tick",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;noClip:Z",
-            shift = At.Shift.AFTER
-        )
-    )
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;noClip:Z", shift = At.Shift.AFTER))
     private void onTickAfterNoClip(CallbackInfo ci) {
+        if ((Object) this instanceof ServerPlayerEntity player) {
+            boolean canClip = this.canClip();
+            boolean forceSync = this.lastCanClip != canClip;
+
+            if (this.isClipping() && !canClip) {
+                this.setClipping(false);
+                forceSync = true;
+
+                GameMode mode = player.interactionManager.getGameMode();
+                mode.setAbilities(player.getAbilities());
+                player.sendAbilitiesUpdate();
+            }
+
+            if (forceSync) {
+                this.lastCanClip = canClip;
+                ServerPlayNetworking.send(player, new ClippingUpdatePacket(this.isClipping(), canClip));
+            }
+
+            if (this.isClipping() && !canClip) {
+                return;
+            }
+        }
+
         if (this.isClipping()) {
             this.noClip = true;
             this.setOnGround(false);
@@ -114,18 +146,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Ignores ground checks for block breaking speed when clipping.
      */
-    @Inject(
-        method = "getBlockBreakingSpeed",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;isSubmergedIn(Lnet/minecraft/registry/tag/TagKey;)Z",
-            shift = At.Shift.BEFORE
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD,
-        cancellable = true
-    )
+    @Inject(method = "getBlockBreakingSpeed", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;isSubmergedIn(Lnet/minecraft/registry/tag/TagKey;)Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private void onGetBlockBreakingSpeed(BlockState block, CallbackInfoReturnable<Float> cir, float speed) {
-        if (this.isClipping()) cir.setReturnValue(speed);
+        if (this.isClipping())
+            cir.setReturnValue(speed);
     }
 
     /**
