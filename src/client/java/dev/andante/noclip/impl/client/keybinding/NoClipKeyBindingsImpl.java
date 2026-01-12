@@ -31,7 +31,8 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
 
     public static void onEndClientTick(MinecraftClient client) {
         ClientPlayerEntity player = client.player;
-        if (player == null) return;
+        if (player == null)
+            return;
 
         NoClipConfig config = NoClipClient.getConfig();
         NoClipConfig.Flight flightConfig = config.flight;
@@ -43,7 +44,18 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
         if (clipping.canClip()) {
             GameMode mode = client.interactionManager.getCurrentGameMode();
             boolean prev = clipping.isClipping();
-            boolean curr = ACTIVATE_NOCLIP.isPressed() && allowedModes.contains(mode);
+            boolean curr = prev;
+
+            if (config.keyBehaviors.noClip == KeyBehavior.TOGGLE) {
+                while (ACTIVATE_NOCLIP.wasPressed()) {
+                    curr = !curr;
+                }
+            } else {
+                curr = ACTIVATE_NOCLIP.isPressed();
+            }
+
+            curr &= allowedModes.contains(mode);
+
             if (prev != curr) {
                 clipping.setClipping(curr);
                 clipping.updateClipping();
@@ -72,7 +84,8 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
         /* Snappy Flight */
 
         if (abilities.flying) {
-            if (flightConfig.snappyFlight.enabled && (!flightConfig.snappyFlight.onlyInNoClip || clipping.isClipping())) {
+            if (flightConfig.snappyFlight.enabled
+                    && (!flightConfig.snappyFlight.onlyInNoClip || clipping.isClipping())) {
                 player.setVelocity(Vec3d.ZERO);
 
                 int sideways = 0;
@@ -80,12 +93,18 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                 int forward = 0;
 
                 GameOptions options = client.options;
-                if (options.leftKey.isPressed()) sideways += 1;
-                if (options.rightKey.isPressed()) sideways -= 1;
-                if (options.jumpKey.isPressed()) upward += 1;
-                if (options.sneakKey.isPressed()) upward -= 1;
-                if (options.forwardKey.isPressed()) forward += 1;
-                if (options.backKey.isPressed()) forward -= 1;
+                if (options.leftKey.isPressed())
+                    sideways += 1;
+                if (options.rightKey.isPressed())
+                    sideways -= 1;
+                if (options.jumpKey.isPressed())
+                    upward += 1;
+                if (options.sneakKey.isPressed())
+                    upward -= 1;
+                if (options.forwardKey.isPressed())
+                    forward += 1;
+                if (options.backKey.isPressed())
+                    forward -= 1;
 
                 player.travel(new Vec3d(sideways, upward, forward));
                 player.setVelocity(player.getVelocity().multiply(7.0D));
@@ -98,7 +117,8 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
         if (RESET_FLIGHT_SPEED.wasPressed()) {
             PlayerAbilities def = new PlayerAbilities();
             abilities.setFlySpeed(def.getFlySpeed());
-            player.sendMessage(Text.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()), true);
+            player.sendMessage(Text.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()),
+                    true);
         }
     }
 
@@ -109,10 +129,14 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
 
     private static List<GameMode> createAllowedModes(AllowIn allow) {
         List<GameMode> list = new ArrayList<>();
-        if (allow.creative) list.add(GameMode.CREATIVE);
-        if (allow.survival) list.add(GameMode.SURVIVAL);
-        if (allow.adventure) list.add(GameMode.ADVENTURE);
-        if (allow.spectator) list.add(GameMode.SPECTATOR);
+        if (allow.creative)
+            list.add(GameMode.CREATIVE);
+        if (allow.survival)
+            list.add(GameMode.SURVIVAL);
+        if (allow.adventure)
+            list.add(GameMode.ADVENTURE);
+        if (allow.spectator)
+            list.add(GameMode.SPECTATOR);
         return list;
     }
 }

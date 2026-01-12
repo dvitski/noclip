@@ -34,7 +34,9 @@ public final class NoClipImpl implements NoClip, ModInitializer {
      */
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(handler.player);
-        ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping(), clippingPlayer.canClip()));
+        boolean canClip = clippingPlayer.canClip();
+        clippingPlayer.setLastCanClip(canClip);
+        ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping(), canClip));
     }
 
     /**
@@ -42,12 +44,24 @@ public final class NoClipImpl implements NoClip, ModInitializer {
      */
     private void receiveUpdate(ClippingUpdatePacket packet, ServerPlayNetworking.Context context) {
         ServerPlayerEntity player = context.player();
-        boolean clipping = packet.clipping();
         ClippingEntity clippingPlayer = ClippingEntity.cast(player);
+
+        if (!clippingPlayer.canClip()) {
+            clippingPlayer.setClipping(false);
+            ServerPlayNetworking.send(player, new ClippingUpdatePacket(false, false));
+
+            GameMode mode = player.interactionManager.getGameMode();
+            mode.setAbilities(player.getAbilities());
+            player.sendAbilitiesUpdate();
+            return;
+        }
+
+        boolean clipping = packet.clipping();
         clippingPlayer.setClipping(clipping);
 
         GameMode mode = player.interactionManager.getGameMode();
         mode.setAbilities(player.getAbilities());
+        player.sendAbilitiesUpdate();
     }
 
     /**
@@ -62,8 +76,7 @@ public final class NoClipImpl implements NoClip, ModInitializer {
     private void afterRespawn(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
         ClippingEntity clippingNewPlayer = ClippingEntity.cast(newPlayer);
         if (clippingNewPlayer.isClipping()) {
-            ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(false, false));
-            ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(true, true));
+            ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(true, clippingNewPlayer.canClip()));
         }
     }
 }
