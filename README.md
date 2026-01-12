@@ -18,6 +18,11 @@ This mod also adds:
 
 ---
 
+### **Requirements**
+- **Fabric API 0.133.0 or newer**
+
+---
+
 ### [**CurseForge**](https://curseforge.com/minecraft/mc-mods/noclip) | [**Modrinth**](https://modrinth.com/mod/noclip)
 
 ---
