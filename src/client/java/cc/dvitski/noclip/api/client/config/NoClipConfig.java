@@ -21,8 +21,8 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextColor;
 
 @Environment(EnvType.CLIENT)
 @Background(Background.TRANSPARENT)
@@ -43,7 +43,7 @@ public class NoClipConfig implements ConfigData {
         @Comment("The color of text displayed by the mod")
         @ColorPicker
         @Excluded
-        public int textColor = ChatFormatting.GRAY.getColor();
+        public int textColor = TextColor.GRAY.getValue();
     }
 
     @CollapsibleObject(startExpanded = true)

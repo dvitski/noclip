@@ -44,7 +44,7 @@ public interface NoClipClientCommand {
     static int executeConfig(CommandContext<FabricClientCommandSource> context) {
         FabricClientCommandSource source = context.getSource();
         Minecraft client = source.getClient();
-        client.schedule(() -> client.setScreen(NoClipConfig.createScreen(client.screen)));
+        client.schedule(() -> client.gui.setScreen(NoClipConfig.createScreen(client.gui.screen())));
         return 1;
     }
 

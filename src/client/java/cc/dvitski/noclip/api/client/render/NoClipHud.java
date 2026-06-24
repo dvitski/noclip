@@ -60,7 +60,7 @@ public class NoClipHud implements HudElement {
         if (this.fade == -1) this.fade = ms + (long) interval;
         float alpha = abs(sin((ms - this.fade) / interval)) + 0.2F;
 
-        if (client.gui.getDebugOverlay().showDebugScreen()) {
+        if (client.getDebugOverlay().showDebugScreen()) {
             this.renderIcon(graphics, scaledWidth - 18 - (client.font.width(this.activeDebugLine) + 4), client.font.lineHeight + 1, ARGB.white(alpha));
         } else {
             this.renderIcon(graphics, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ARGB.white(alpha));

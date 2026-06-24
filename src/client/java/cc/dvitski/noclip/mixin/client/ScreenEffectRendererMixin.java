@@ -20,7 +20,7 @@ public class ScreenEffectRendererMixin {
     /**
      * Cancels all overlays when clipping.
      */
-    @WrapMethod(method = "renderScreenEffect")
+    @WrapMethod(method = "submit")
     private void onRenderOverlays(boolean isFirstPerson, boolean isSleeping, float partialTicks, SubmitNodeCollector submitNodeCollector, boolean hideGui, Operation<Void> original) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(minecraft.player);
         if (clippingPlayer.isClipping()) {
