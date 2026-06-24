@@ -3,6 +3,7 @@
 plugins {
     id "fabric-loom"
     id "maven-publish"
+    id "me.modmuss50.mod-publish-plugin" version "2.0.1"
 }
 
 version = "$mod_version+$minecraft_version"
@@ -64,4 +65,35 @@ java {
 
 jar {
     from("LICENSE", "LICENSE_ASSETS")
+}
+
+publishMods {
+    file = jar.archiveFile
+
+    version = project.version
+    type = STABLE
+    modLoaders.add("fabric")
+
+    def changelogFile = file("CHANGELOG.md")
+    changelog = changelogFile.exists() ? changelogFile.text : "No changelog provided"
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = "dvitski/noclip"
+        commitish = "latest"
+    }
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_API_KEY")
+        projectId = "yDx6WroB"
+        minecraftVersions.add("$minecraft_version")
+    }
+
+    curseforge { // god forbid
+        projectId = "653377"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add("$minecraft_version")
+        client = true
+        server = true
+    }
 }

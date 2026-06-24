@@ -24,3 +24,5 @@ production/
 #wtf
 logs/
 .cache/
+
+CHANGELOG.md
