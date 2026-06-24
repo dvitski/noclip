@@ -18,14 +18,14 @@ public class EntitySelectorMixin {
      * Adds an extra check to {@link EntitySelector#LIVING_ENTITY_STILL_ALIVE} for clipping.
      * <p>This predicate is used when checking for players near spawners and dripstone landing.</p>
      */
-    @Inject(method = "method_32878", at = @At("TAIL"), cancellable = true, remap = false)
+    @Inject(method = "lambda$static$0", at = @At("TAIL"), cancellable = true, remap = false)
     private static void onValidLivingEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValueZ()) {
             if (entity instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "method_24517", at = @At("TAIL"), cancellable = true, remap = false)
+    @Inject(method = "lambda$static$4", at = @At("TAIL"), cancellable = true, remap = false)
     private static void onExceptSpectator(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValueZ()) {
             if (entity instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) cir.setReturnValue(false);

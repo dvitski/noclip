@@ -15,7 +15,7 @@ public class LevelRendererMixin {
      * Modifies an argument of setupTerrain to make the world render as if the player is in spectator when clipping.
      */
     @ModifyArg(
-        method = "renderLevel",
+        method = "update",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/LevelRenderer;cullTerrain(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;Z)V"

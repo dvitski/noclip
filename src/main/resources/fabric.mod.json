@@ -39,7 +39,6 @@
       "environment": "client"
     }
   ],
-  "accessWidener": "noclip.accesswidener",
 
   "depends": {
     "minecraft": ">=1.21.8",

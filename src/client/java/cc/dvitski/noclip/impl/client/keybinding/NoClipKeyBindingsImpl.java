@@ -64,7 +64,7 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
 
                 if (config.keyBehaviors.noClip == KeyBehavior.TOGGLE) {
                     String key = curr ? TOGGLE_NOCLIP_ON_KEY : TOGGLE_NOCLIP_OFF_KEY;
-                    player.displayClientMessage(Component.translatable(key), true);
+                    player.sendOverlayMessage(Component.translatable(key));
                 }
             }
         }
@@ -98,7 +98,7 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
         if (RESET_FLIGHT_SPEED.consumeClick()) {
             Abilities def = new Abilities();
             abilities.setFlyingSpeed(def.getFlyingSpeed());
-            player.displayClientMessage(Component.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()), true);
+            player.sendOverlayMessage(Component.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()));
         }
     }
 

@@ -18,8 +18,8 @@ public final class NoClipImpl implements NoClip, ModInitializer {
         LOGGER.info("Initializing {}", MOD_NAME);
 
         // networking
-        PayloadTypeRegistry.playC2S().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ClippingUpdatePacket.ID, ClippingUpdatePacket.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ClippingUpdatePacket.ID, this::receiveUpdate);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);

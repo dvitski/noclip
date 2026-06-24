@@ -4,6 +4,7 @@ import cc.dvitski.noclip.api.NoClip;
 import cc.dvitski.noclip.api.client.NoClipClient;
 import cc.dvitski.noclip.impl.client.keybinding.NoClipKeyBindingsImpl;
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.AutoConfigClient;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -125,6 +126,6 @@ public class NoClipConfig implements ConfigData {
     }
 
     public static Screen createScreen(Screen parent) {
-        return AutoConfig.getConfigScreen(NoClipConfig.class, parent).get();
+        return AutoConfigClient.getConfigScreen(NoClipConfig.class, parent).get();
     }
 }

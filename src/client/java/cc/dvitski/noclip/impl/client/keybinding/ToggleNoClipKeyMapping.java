@@ -12,10 +12,10 @@ import net.minecraft.network.chat.Component;
 import java.util.function.BooleanSupplier;
 
 @Environment(EnvType.CLIENT)
-public class ToggleNoClipKeyBinding extends ToggleKeyMapping {
+public class ToggleNoClipKeyMapping extends ToggleKeyMapping {
     public static final String ACTIONBAR_KEY = "text." + NoClip.MOD_ID + ".server_noclip_not_present";
 
-    public ToggleNoClipKeyBinding(String id, int code, Category category, BooleanSupplier toggleGetter, boolean restore) {
+    public ToggleNoClipKeyMapping(String id, int code, Category category, BooleanSupplier toggleGetter, boolean restore) {
         super(id, code, category, toggleGetter, restore);
     }
 
@@ -27,7 +27,7 @@ public class ToggleNoClipKeyBinding extends ToggleKeyMapping {
             NoClipManager clipping = NoClipManager.INSTANCE;
             if (!clipping.canClip()) {
                 Minecraft client = Minecraft.getInstance();
-                client.player.displayClientMessage(Component.translatable(ACTIONBAR_KEY).withStyle(ChatFormatting.RED), true);
+                client.player.sendOverlayMessage(Component.translatable(ACTIONBAR_KEY).withStyle(ChatFormatting.RED));
             }
         }
     }

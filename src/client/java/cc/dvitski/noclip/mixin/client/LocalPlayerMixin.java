@@ -10,6 +10,7 @@ import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.chat.ChatAbilities;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,7 +38,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
      * Updates player clipping value based on set/received client value.
      */
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onConstructor(Minecraft client, ClientLevel world, ClientPacketListener handler, StatsCounter stats, ClientRecipeBook recipeBook, Input lastPlayerInput, boolean lastSprinting, CallbackInfo ci) {
+    private void onConstructor(Minecraft minecraft, ClientLevel level, ClientPacketListener connection, StatsCounter stats, ClientRecipeBook recipeBook, Input lastSentInput, boolean wasSprinting, ChatAbilities chatAbilities, CallbackInfo ci) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(this);
         clippingPlayer.setClipping(NoClipManager.INSTANCE.isClipping());
     }

@@ -9,7 +9,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -35,7 +35,7 @@ public class NoClipHud implements HudElement {
     private String activeDebugLine;
 
     @Override
-    public void render(GuiGraphics context, DeltaTracker renderTickCounter) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         if (!NoClipManager.INSTANCE.isClipping() || !NoClipClient.getConfig().display.hudIcon) {
             this.fade = -1;
             return;
@@ -61,13 +61,13 @@ public class NoClipHud implements HudElement {
         float alpha = abs(sin((ms - this.fade) / interval)) + 0.2F;
 
         if (client.gui.getDebugOverlay().showDebugScreen()) {
-            this.renderIcon(context, scaledWidth - 18 - (client.font.width(this.activeDebugLine) + 4), client.font.lineHeight + 1, ARGB.white(alpha));
+            this.renderIcon(graphics, scaledWidth - 18 - (client.font.width(this.activeDebugLine) + 4), client.font.lineHeight + 1, ARGB.white(alpha));
         } else {
-            this.renderIcon(context, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ARGB.white(alpha));
+            this.renderIcon(graphics, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ARGB.white(alpha));
         }
     }
 
-    public void renderIcon(GuiGraphics context, int x, int y, int color) {
+    public void renderIcon(GuiGraphicsExtractor context, int x, int y, int color) {
         context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, 18, 18, 18, 18, color);
     }
 

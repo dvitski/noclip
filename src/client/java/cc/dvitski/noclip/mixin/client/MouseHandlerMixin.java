@@ -58,7 +58,7 @@ public class MouseHandlerMixin {
 
         if (old != speed && NoClipClient.getConfig().display.showSpeedUpdatesOnActionBar) {
             Abilities def = new Abilities();
-            player.displayClientMessage(Component.translatable(SET_FLIGHT_SPEED_KEY, String.format("%.1f", speed / def.getFlyingSpeed())).setStyle(NoClipClient.getTextStyle()), true);
+            player.sendOverlayMessage(Component.translatable(SET_FLIGHT_SPEED_KEY, String.format("%.1f", speed / def.getFlyingSpeed())).setStyle(NoClipClient.getTextStyle()));
         }
 
         ci.cancel();
