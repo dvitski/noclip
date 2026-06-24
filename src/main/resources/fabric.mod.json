@@ -22,13 +22,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.andante.noclip.impl.NoClipImpl"
+        "cc.dvitski.noclip.impl.NoClipImpl"
     ],
     "client": [
-      "dev.andante.noclip.impl.client.NoClipClientImpl"
+        "cc.dvitski.noclip.impl.client.NoClipClientImpl"
     ],
     "modmenu": [
-      "dev.andante.noclip.impl.client.integration.NoClipModMenuImpl"
+        "cc.dvitski.noclip.impl.client.integration.NoClipModMenuImpl"
     ]
   },
 

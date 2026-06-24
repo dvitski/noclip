@@ -2,7 +2,7 @@
     "required": true,
     "minVersion": "0.8",
     "compatibilityLevel": "JAVA_17",
-    "package": "dev.andante.noclip.mixin.client",
+    "package": "cc.dvitski.noclip.mixin.client",
     "client": [
         "AvatarRenderStateMixin",
         "BubbleColumnAmbientSoundHandlerMixin",

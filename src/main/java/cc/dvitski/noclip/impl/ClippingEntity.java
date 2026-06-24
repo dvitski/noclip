@@ -1,0 +1,14 @@
+package cc.dvitski.noclip.impl;
+
+public interface ClippingEntity {
+    boolean canClip();
+
+    boolean isClipping();
+    void setClipping(boolean clipping);
+
+    boolean isClippingInsideWall();
+
+    static ClippingEntity cast(Object player) {
+        return (ClippingEntity) player;
+    }
+}
