@@ -1,14 +1,14 @@
 package dev.andante.noclip.impl;
 
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Optional;
 
 /**
- * An interface used to attach a {@link PlayerEntity} to their {@link PlayerAbilities}.
+ * An interface used to attach a {@link Player} to their {@link Abilities}.
  */
 public interface PlayerAbilitiesAccess {
-    Optional<PlayerEntity> getPlayer();
-    void setPlayer(PlayerEntity player);
+    Optional<Player> getPlayer();
+    void setPlayer(Player player);
 }

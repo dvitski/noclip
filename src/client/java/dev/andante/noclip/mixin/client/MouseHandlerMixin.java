@@ -7,12 +7,12 @@ import dev.andante.noclip.api.client.keybinding.NoClipKeyBindings;
 import dev.andante.noclip.impl.ClippingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Abilities;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,46 +20,45 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Mouse.class)
-public class MouseMixin {
+@Mixin(MouseHandler.class)
+public class MouseHandlerMixin {
     @Unique private static final String SET_FLIGHT_SPEED_KEY = "text." + NoClip.MOD_ID + ".flight_speed.set";
-    @Shadow @Final private MinecraftClient client;
+    @Shadow @Final private Minecraft minecraft;
 
     /**
      * Enables scrolling to modify fly speed when in not in spectator and a key binding held or toggled.
      */
     @Inject(
-        method = "onMouseScroll",
+        method = "onScroll",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerInventory;setSelectedSlot(I)V"
+            target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"
         ),
         cancellable = true
     )
     private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
-        if (!NoClipKeyBindings.ACTIVATE_FLIGHT_SPEED_SCROLL.isPressed()) return;
+        if (!NoClipKeyBindings.ACTIVATE_FLIGHT_SPEED_SCROLL.isDown()) return;
 
         NoClipConfig config = NoClipClient.getConfig();
-        ClientPlayerEntity player = this.client.player;
+        LocalPlayer player = this.minecraft.player;
         ClippingEntity clippingPlayer = ClippingEntity.cast(player);
 
         if (config.flight.speedScrolling.onlyInNoClip && !clippingPlayer.isClipping()) return;
 
-        PlayerAbilities abilities = player.getAbilities();
+        Abilities abilities = player.getAbilities();
 
         if (!abilities.flying) return;
 
-        float old = abilities.getFlySpeed();
+        float old = abilities.getFlyingSpeed();
 
-        float speed = MathHelper.clamp(old + ((float)vertical * 0.005f), 0.0f, config.flight.speedScrolling.maxSpeed / 20f);
-        abilities.setFlySpeed(speed);
+        float speed = Mth.clamp(old + ((float)vertical * 0.005f), 0.0f, config.flight.speedScrolling.maxSpeed / 20f);
+        abilities.setFlyingSpeed(speed);
 
         if (old != speed && NoClipClient.getConfig().display.showSpeedUpdatesOnActionBar) {
-            PlayerAbilities def = new PlayerAbilities();
-            player.sendMessage(Text.translatable(SET_FLIGHT_SPEED_KEY, String.format("%.1f", speed / def.getFlySpeed())).setStyle(NoClipClient.getTextStyle()), true);
+            Abilities def = new Abilities();
+            player.displayClientMessage(Component.translatable(SET_FLIGHT_SPEED_KEY, String.format("%.1f", speed / def.getFlyingSpeed())).setStyle(NoClipClient.getTextStyle()), true);
         }
 
         ci.cancel();

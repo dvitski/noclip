@@ -2,16 +2,16 @@ package dev.andante.noclip.mixin.client;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.hud.DebugHud;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DebugHud.class)
-public class DebugHudMixin {
-    @Shadow @Final private TextRenderer textRenderer;
+@Mixin(DebugScreenOverlay.class)
+public class DebugScreenOverlayMixin {
+    @Shadow @Final private Font font;
 
 /*    *//**
      * Captures the first line of the debug hud.

@@ -1,19 +1,19 @@
 package dev.andante.noclip.mixin;
 
 import dev.andante.noclip.impl.ClippingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.explosion.ExplosionImpl;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ServerExplosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Mixin(ExplosionImpl.class)
+@Mixin(ServerExplosion.class)
 public class ExplosionMixin {
     /**
      * Prevents clipping players from being added to the knockback map.
      */
     @ModifyArg(
-        method = "damageEntities",
+        method = "hurtEntities",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
@@ -21,7 +21,7 @@ public class ExplosionMixin {
         index = 0
     )
     private <K> K onPlayerKnockbackPut(K key) {
-        PlayerEntity player = (PlayerEntity) key;
+        Player player = (Player) key;
         ClippingEntity clippingPlayer = ClippingEntity.cast(player);
         return clippingPlayer.isClipping() ? null : key;
     }

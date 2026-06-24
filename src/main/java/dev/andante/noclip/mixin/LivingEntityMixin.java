@@ -3,16 +3,16 @@ package dev.andante.noclip.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.andante.noclip.impl.ClippingEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
-    private LivingEntityMixin(EntityType<?> type, World world) {
+    private LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
@@ -21,10 +21,10 @@ public abstract class LivingEntityMixin extends Entity {
      *
      * @return
      */
-    @WrapMethod(method = "isAffectedBySplashPotions")
+    @WrapMethod(method = "isAffectedByPotions")
     private boolean onIsAffectedBySplashPotions(Operation<Boolean> original) {
         LivingEntity that = (LivingEntity) (Object) this;
-        if (that instanceof PlayerEntity player) {
+        if (that instanceof Player player) {
             ClippingEntity clippingPlayer = ClippingEntity.cast(player);
             if (clippingPlayer.isClipping()) {
                 return false;
@@ -34,7 +34,7 @@ public abstract class LivingEntityMixin extends Entity {
         return original.call();
     }
 
-    @WrapMethod(method = "isClimbing")
+    @WrapMethod(method = "onClimbable")
     private boolean onCanClimb(Operation<Boolean> original) {
         LivingEntity that = (LivingEntity) (Object) this;
         if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {

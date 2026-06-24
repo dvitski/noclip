@@ -3,8 +3,8 @@ package dev.andante.noclip.mixin.client;
 import dev.andante.noclip.impl.ClippingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,21 +15,21 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(value = GameRenderer.class, priority = 999)
 public class GameRendererMixin {
     @Shadow @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
 
     /**
      * Fixes dark hand lighting when clipping and inside a block.
      */
     @ModifyArg(
-        method = "renderHand",
+        method = "renderItemInHand",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/network/ClientPlayerEntity;I)V"
+            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderHandsWithItems(FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/player/LocalPlayer;I)V"
         ),
         index = 4
     )
     private int onRenderHandFixLight(int light) {
-        ClippingEntity clippingPlayer = ClippingEntity.cast(this.client.player);
+        ClippingEntity clippingPlayer = ClippingEntity.cast(this.minecraft.player);
         return clippingPlayer.isClippingInsideWall() ? 0xFFFFFF : light;
     }
 }

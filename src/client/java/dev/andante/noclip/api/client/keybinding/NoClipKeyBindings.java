@@ -1,5 +1,6 @@
 package dev.andante.noclip.api.client.keybinding;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.api.client.NoClipClient;
 import dev.andante.noclip.api.client.config.KeyBehavior;
@@ -8,32 +9,31 @@ import dev.andante.noclip.impl.client.keybinding.ToggleNoClipKeyBinding;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.option.StickyKeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.ToggleKeyMapping;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public interface NoClipKeyBindings {
-    KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of(NoClip.MOD_ID, "category"));
+    KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(NoClip.MOD_ID, "category"));
 
     ToggleNoClipKeyBinding ACTIVATE_NOCLIP = (ToggleNoClipKeyBinding) KeyBindingHelper.registerKeyBinding(new ToggleNoClipKeyBinding(
             "key." + NoClip.MOD_ID + ".activate_noclip",
-            InputUtil.GLFW_KEY_GRAVE_ACCENT, CATEGORY, toggles(behaviors -> behaviors.noClip),
+            InputConstants.KEY_GRAVE, CATEGORY, toggles(behaviors -> behaviors.noClip),
             true
     ));
 
-    KeyBinding ACTIVATE_FLIGHT_SPEED_SCROLL = KeyBindingHelper.registerKeyBinding(new StickyKeyBinding(
+    KeyMapping ACTIVATE_FLIGHT_SPEED_SCROLL = KeyBindingHelper.registerKeyBinding(new ToggleKeyMapping(
             "key." + NoClip.MOD_ID + ".activate_flight_speed_scroll",
-            InputUtil.UNKNOWN_KEY.getCode(), CATEGORY, toggles(behaviors -> behaviors.flightSpeedActivation),
+            InputConstants.UNKNOWN.getValue(), CATEGORY, toggles(behaviors -> behaviors.flightSpeedActivation),
             true
     ));
 
-    KeyBinding RESET_FLIGHT_SPEED = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key." + NoClip.MOD_ID + ".reset_flight_speed", InputUtil.UNKNOWN_KEY.getCode(), CATEGORY
+    KeyMapping RESET_FLIGHT_SPEED = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key." + NoClip.MOD_ID + ".reset_flight_speed", InputConstants.UNKNOWN.getValue(), CATEGORY
     ));
 
     private static BooleanSupplier toggles(Function<NoClipConfig.KeyBehaviors, KeyBehavior> getter) {

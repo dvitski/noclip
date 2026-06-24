@@ -5,7 +5,7 @@ import dev.andante.noclip.api.client.config.NoClipConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.function.Supplier;
 

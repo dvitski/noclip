@@ -1,12 +1,12 @@
 package dev.andante.noclip.mixin.client;
 
 import dev.andante.noclip.api.client.IPlayerClippingState;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(PlayerEntityRenderState.class)
-public class PlayerEntityRenderStateMixin implements IPlayerClippingState {
+@Mixin(AvatarRenderState.class)
+public class AvatarRenderStateMixin implements IPlayerClippingState {
     @Unique
     private boolean isClipping = false;
 

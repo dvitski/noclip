@@ -2,23 +2,23 @@ package dev.andante.noclip.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.impl.ClippingEntity;
 import dev.andante.noclip.impl.PlayerAbilitiesAccess;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,15 +27,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @SuppressWarnings("InvalidInjectorMethodSignature")
-@Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements ClippingEntity {
-    @Shadow @Final private PlayerAbilities abilities;
+@Mixin(Player.class)
+public abstract class PlayerMixin extends LivingEntity implements ClippingEntity {
+    @Shadow @Final private Abilities abilities;
     @Unique private boolean clipping;
 
-    private PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world) {
+    private PlayerMixin(EntityType<? extends LivingEntity> type, Level world) {
         super(type, world);
     }
 
@@ -55,7 +54,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     @Override
     public void setClipping(boolean clipping) {
         this.clipping = clipping;
-        this.intersectionChecked = !clipping;
+        this.blocksBuilding = !clipping;
     }
 
     @Unique
@@ -64,9 +63,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
         if (!this.isClipping()) return false;
 
         // love this.
-        this.noClip = false;
-        boolean insideWall = this.isInsideWall();
-        this.noClip = true;
+        this.noPhysics = false;
+        boolean insideWall = this.isInWall();
+        this.noPhysics = true;
         return insideWall;
     }
 
@@ -74,8 +73,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
      * Attaches the player to their {@link #abilities}.
      */
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(World world, GameProfile profile, CallbackInfo ci) {
-        PlayerEntity that = (PlayerEntity) (Object) this;
+    private void onInit(Level world, GameProfile profile, CallbackInfo ci) {
+        Player that = (Player) (Object) this;
         ((PlayerAbilitiesAccess) this.abilities).setPlayer(that);
     }
 
@@ -83,16 +82,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
      * Updates the player's clipping value based on our custom parameters.
      */
     @Inject(
-        method = "tick",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;noClip:Z",
-            shift = At.Shift.AFTER
-        )
+            method = "tick",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/entity/player/Player;noPhysics:Z",
+                    shift = At.Shift.AFTER,
+                    opcode = Opcodes.PUTFIELD
+            )
     )
     private void onTickAfterNoClip(CallbackInfo ci) {
         if (this.isClipping()) {
-            this.noClip = true;
+            this.noPhysics = true;
             this.setOnGround(false);
             this.fallDistance = 0;
         }
@@ -101,10 +101,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Prevents the player's pose from updating when clipping.
      */
-    @WrapMethod(method = "updatePose")
+    @WrapMethod(method = "updatePlayerPose")
     private void onUpdatePose(Operation<Void> original) {
         if (this.isClipping()) {
-            this.setPose(EntityPose.STANDING);
+            this.setPose(Pose.STANDING);
             return;
         }
 
@@ -115,23 +115,22 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
      * Ignores ground checks for block breaking speed when clipping.
      */
     @Inject(
-        method = "getBlockBreakingSpeed",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;isSubmergedIn(Lnet/minecraft/registry/tag/TagKey;)Z",
-            shift = At.Shift.BEFORE
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD,
-        cancellable = true
+            method = "getDestroySpeed",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z",
+                    shift = At.Shift.BEFORE
+            ),
+            cancellable = true
     )
-    private void onGetBlockBreakingSpeed(BlockState block, CallbackInfoReturnable<Float> cir, float speed) {
+    private void onGetBlockBreakingSpeed(BlockState block, CallbackInfoReturnable<Float> cir, @Local(ordinal = 0) float speed) {
         if (this.isClipping()) cir.setReturnValue(speed);
     }
 
     /**
      * Cancels any player collision code when clipping.
      */
-    @WrapMethod(method = "collideWithEntity")
+    @WrapMethod(method = "touch")
     private void onCollideWithEntity(Entity entity, Operation<Void> original) {
         if (this.isClipping()) {
             return;
@@ -143,7 +142,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
     /**
      * Cancels water interaction when clipping.
      */
-    @WrapMethod(method = "onSwimmingStart")
+    @WrapMethod(method = "doWaterSplashEffect")
     private void onOnSwimmingStart(Operation<Void> original) {
         if (this.isClipping()) {
             return;
@@ -154,13 +153,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clipping
 
     /* NBT */
 
-    @Inject(method = "writeCustomData", at = @At("TAIL"))
-    private void onWriteCustomDataToNbt(WriteView view, CallbackInfo ci) {
+    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+    private void onWriteCustomDataToNbt(ValueOutput view, CallbackInfo ci) {
         view.putBoolean(NoClip.NBT_KEY, this.isClipping());
     }
 
-    @Inject(method = "readCustomData", at = @At("TAIL"))
-    private void onReadCustomDataFromNbt(ReadView view, CallbackInfo ci) {
-        this.setClipping(view.getBoolean(NoClip.NBT_KEY, false));
+    @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+    private void onReadCustomDataFromNbt(ValueInput view, CallbackInfo ci) {
+        this.setClipping(view.getBooleanOr(NoClip.NBT_KEY, false));
     }
 }

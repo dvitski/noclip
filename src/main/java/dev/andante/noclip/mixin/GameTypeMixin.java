@@ -4,36 +4,36 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.andante.noclip.impl.ClippingEntity;
 import dev.andante.noclip.impl.PlayerAbilitiesAccess;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Optional;
 
-@Mixin(GameMode.class)
-public abstract class GameModeMixin {
-    @Shadow public abstract void setAbilities(PlayerAbilities abilities);
+@Mixin(GameType.class)
+public abstract class GameTypeMixin {
+    @Shadow public abstract void updatePlayerAbilities(Abilities abilities);
 
     /**
      * Overrides abilities modification if clipping.
      */
-    @WrapMethod(method = "setAbilities")
-    private void onSetAbilities(PlayerAbilities abilities, Operation<Void> original) {
+    @WrapMethod(method = "updatePlayerAbilities")
+    private void onSetAbilities(Abilities abilities, Operation<Void> original) {
         PlayerAbilitiesAccess access = (PlayerAbilitiesAccess) abilities;
-        Optional<PlayerEntity> maybePlayer = access.getPlayer();
+        Optional<Player> maybePlayer = access.getPlayer();
         if (maybePlayer.isPresent()) {
-            PlayerEntity player = maybePlayer.get();
+            Player player = maybePlayer.get();
             ClippingEntity clippingPlayer = ClippingEntity.cast(player);
             if (clippingPlayer.isClipping()) {
-                PlayerAbilities def = new PlayerAbilities();
-                this.setAbilities(def);
+                Abilities def = new Abilities();
+                this.updatePlayerAbilities(def);
 
-                abilities.allowFlying = true;
+                abilities.mayfly = true;
                 abilities.invulnerable = true;
-                abilities.creativeMode = def.creativeMode;
-                abilities.allowModifyWorld = def.allowModifyWorld;
+                abilities.instabuild = def.instabuild;
+                abilities.mayBuild = def.mayBuild;
 
                 return;
             }

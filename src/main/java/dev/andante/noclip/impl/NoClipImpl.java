@@ -8,9 +8,9 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.GameType;
 
 public final class NoClipImpl implements NoClip, ModInitializer {
     @Override
@@ -32,7 +32,7 @@ public final class NoClipImpl implements NoClip, ModInitializer {
     /**
      * Updates the client player on server join.
      */
-    private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
+    private void onPlayerJoin(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(handler.player);
         ServerPlayNetworking.send(handler.player, new ClippingUpdatePacket(clippingPlayer.isClipping(), clippingPlayer.canClip()));
     }
@@ -41,25 +41,25 @@ public final class NoClipImpl implements NoClip, ModInitializer {
      * Receives a clipping update from the client.
      */
     private void receiveUpdate(ClippingUpdatePacket packet, ServerPlayNetworking.Context context) {
-        ServerPlayerEntity player = context.player();
+        ServerPlayer player = context.player();
         boolean clipping = packet.clipping();
         ClippingEntity clippingPlayer = ClippingEntity.cast(player);
         clippingPlayer.setClipping(clipping);
 
-        GameMode mode = player.interactionManager.getGameMode();
-        mode.setAbilities(player.getAbilities());
+        GameType mode = player.gameMode.getGameModeForPlayer();
+        mode.updatePlayerAbilities(player.getAbilities());
     }
 
     /**
      * Copies data from a dead player to a new player.
      */
-    private void copyFrom(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
+    private void copyFrom(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
         ClippingEntity clippingOldPlayer = ClippingEntity.cast(oldPlayer);
         ClippingEntity clippingNewPlayer = ClippingEntity.cast(newPlayer);
         clippingNewPlayer.setClipping(clippingOldPlayer.isClipping());
     }
 
-    private void afterRespawn(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
+    private void afterRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
         ClippingEntity clippingNewPlayer = ClippingEntity.cast(newPlayer);
         if (clippingNewPlayer.isClipping()) {
             ServerPlayNetworking.send(newPlayer, new ClippingUpdatePacket(false, false));

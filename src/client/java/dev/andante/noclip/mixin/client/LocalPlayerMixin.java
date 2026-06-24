@@ -6,16 +6,16 @@ import dev.andante.noclip.api.client.NoClipManager;
 import dev.andante.noclip.impl.ClippingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.input.Input;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.recipebook.ClientRecipeBook;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.stat.StatHandler;
-import net.minecraft.util.PlayerInput;
+import net.minecraft.client.ClientRecipeBook;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.stats.StatsCounter;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Input;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,11 +25,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
-    @Shadow public Input input;
+@Mixin(LocalPlayer.class)
+public abstract class LocalPlayerMixin extends AbstractClientPlayer {
+    @Shadow public ClientInput input;
 
-    private ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
+    private LocalPlayerMixin(ClientLevel world, GameProfile profile) {
         super(world, profile);
     }
 
@@ -37,7 +37,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
      * Updates player clipping value based on set/received client value.
      */
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onConstructor(MinecraftClient client, ClientWorld world, ClientPlayNetworkHandler handler, StatHandler stats, ClientRecipeBook recipeBook, PlayerInput lastPlayerInput, boolean lastSprinting, CallbackInfo ci) {
+    private void onConstructor(Minecraft client, ClientLevel world, ClientPacketListener handler, StatsCounter stats, ClientRecipeBook recipeBook, Input lastPlayerInput, boolean lastSprinting, CallbackInfo ci) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(this);
         clippingPlayer.setClipping(NoClipManager.INSTANCE.isClipping());
     }
@@ -46,44 +46,44 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
      * Cancels water submersion effects when clipping.
      */
     @Inject(
-        method = "updateWaterSubmersionState",
+        method = "updateIsUnderwater",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;updateWaterSubmersionState()Z",
+            target = "Lnet/minecraft/client/player/AbstractClientPlayer;updateIsUnderwater()Z",
             shift = At.Shift.AFTER
         ),
         cancellable = true
     )
     private void onUpdateWaterSubmersionState(CallbackInfoReturnable<Boolean> cir) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(this);
-        if (clippingPlayer.isClipping()) cir.setReturnValue(this.isSubmergedInWater);
+        if (clippingPlayer.isClipping()) cir.setReturnValue(this.wasUnderwater);
     }
 
     /**
      * Prevents the player from having their sprinting stopped when clipping through water.
      */
     @Inject(
-        method = "tickMovement",
+        method = "aiStep",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayerEntity;setSprinting(Z)V",
+            target = "Lnet/minecraft/client/player/LocalPlayer;setSprinting(Z)V",
             ordinal = 3,
             shift = At.Shift.AFTER
         )
     )
     private void preventStopSprinting(CallbackInfo ci) {
         ClippingEntity clippingPlayer = ClippingEntity.cast(this);
-        if (clippingPlayer.isClipping() && this.input.hasForwardMovement()) this.setSprinting(true);
+        if (clippingPlayer.isClipping() && this.input.hasForwardImpulse()) this.setSprinting(true);
     }
 
     /**
      * Fixes underwater vision when clipping to be that of spectator's.
      */
     @ModifyArg(
-        method = "tickMovement",
+        method = "aiStep",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/util/math/MathHelper;clamp(III)I",
+            target = "Lnet/minecraft/util/Mth;clamp(III)I",
             ordinal = 0
         ),
         index = 0
@@ -97,18 +97,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
      * Resets flight speed when disabling flight, if configured.
      */
     @Inject(
-        method = "tickMovement",
+        method = "aiStep",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayerEntity;sendAbilitiesUpdate()V",
+            target = "Lnet/minecraft/client/player/LocalPlayer;onUpdateAbilities()V",
             ordinal = 1,
             shift = At.Shift.BEFORE
         )
     )
     private void disableFlightIfConfigured(CallbackInfo ci) {
         if (NoClipClient.getConfig().flight.speedScrolling.resetSpeedOnClipOrFlight) {
-            PlayerAbilities def = new PlayerAbilities();
-            this.getAbilities().setFlySpeed(def.getFlySpeed());
+            Abilities def = new Abilities();
+            this.getAbilities().setFlyingSpeed(def.getFlyingSpeed());
         }
     }
 }

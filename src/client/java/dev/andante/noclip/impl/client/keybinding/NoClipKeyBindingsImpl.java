@@ -10,14 +10,14 @@ import dev.andante.noclip.api.client.keybinding.NoClipKeyBindings;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +27,23 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
     public static final String RESET_FLIGHT_SPEED_KEY = "text." + NoClip.MOD_ID + ".flight_speed.reset";
     public static final String TOGGLE_NOCLIP_ON_KEY = "text." + NoClip.MOD_ID + ".toggle_noclip.on";
     public static final String TOGGLE_NOCLIP_OFF_KEY = "text." + NoClip.MOD_ID + ".toggle_noclip.off";
-    private static List<GameMode> allowedModes = createAllowedModes(NoClipClient.CONFIG.getConfig().allowIn);
+    private static List<GameType> allowedModes = createAllowedModes(NoClipClient.CONFIG.getConfig().allowIn);
 
-    public static void onEndClientTick(MinecraftClient client) {
-        ClientPlayerEntity player = client.player;
+    public static void onEndClientTick(Minecraft client) {
+        LocalPlayer player = client.player;
         if (player == null) return;
 
         NoClipConfig config = NoClipClient.getConfig();
         NoClipConfig.Flight flightConfig = config.flight;
-        PlayerAbilities abilities = player.getAbilities();
+        Abilities abilities = player.getAbilities();
 
         /* Clipping */
 
         NoClipManager clipping = NoClipManager.INSTANCE;
         if (clipping.canClip()) {
-            GameMode mode = client.interactionManager.getCurrentGameMode();
+            GameType mode = client.gameMode.getPlayerMode();
             boolean prev = clipping.isClipping();
-            boolean curr = ACTIVATE_NOCLIP.isPressed() && allowedModes.contains(mode);
+            boolean curr = ACTIVATE_NOCLIP.isDown() && allowedModes.contains(mode);
             if (prev != curr) {
                 clipping.setClipping(curr);
                 clipping.updateClipping();
@@ -54,17 +54,17 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
                     }
                 } else {
                     if (flightConfig.speedScrolling.resetSpeedOnClipOrFlight) {
-                        PlayerAbilities def = new PlayerAbilities();
-                        abilities.setFlySpeed(def.getFlySpeed());
+                        Abilities def = new Abilities();
+                        abilities.setFlyingSpeed(def.getFlyingSpeed());
                     }
                 }
 
-                mode.setAbilities(abilities);
-                player.sendAbilitiesUpdate();
+                mode.updatePlayerAbilities(abilities);
+                player.onUpdateAbilities();
 
                 if (config.keyBehaviors.noClip == KeyBehavior.TOGGLE) {
                     String key = curr ? TOGGLE_NOCLIP_ON_KEY : TOGGLE_NOCLIP_OFF_KEY;
-                    player.sendMessage(Text.translatable(key), true);
+                    player.displayClientMessage(Component.translatable(key), true);
                 }
             }
         }
@@ -73,46 +73,46 @@ public final class NoClipKeyBindingsImpl implements NoClipKeyBindings {
 
         if (abilities.flying) {
             if (flightConfig.snappyFlight.enabled && (!flightConfig.snappyFlight.onlyInNoClip || clipping.isClipping())) {
-                player.setVelocity(Vec3d.ZERO);
+                player.setDeltaMovement(Vec3.ZERO);
 
                 int sideways = 0;
                 int upward = 0;
                 int forward = 0;
 
-                GameOptions options = client.options;
-                if (options.leftKey.isPressed()) sideways += 1;
-                if (options.rightKey.isPressed()) sideways -= 1;
-                if (options.jumpKey.isPressed()) upward += 1;
-                if (options.sneakKey.isPressed()) upward -= 1;
-                if (options.forwardKey.isPressed()) forward += 1;
-                if (options.backKey.isPressed()) forward -= 1;
+                Options options = client.options;
+                if (options.keyLeft.isDown()) sideways += 1;
+                if (options.keyRight.isDown()) sideways -= 1;
+                if (options.keyJump.isDown()) upward += 1;
+                if (options.keyShift.isDown()) upward -= 1;
+                if (options.keyUp.isDown()) forward += 1;
+                if (options.keyDown.isDown()) forward -= 1;
 
-                player.travel(new Vec3d(sideways, upward, forward));
-                player.setVelocity(player.getVelocity().multiply(7.0D));
-                player.addVelocity(0.0D, upward * abilities.getFlySpeed() * 2, 0.0D);
+                player.travel(new Vec3(sideways, upward, forward));
+                player.setDeltaMovement(player.getDeltaMovement().scale(7.0D));
+                player.push(0.0D, upward * abilities.getFlyingSpeed() * 2, 0.0D);
             }
         }
 
         /* Flight Speed */
 
-        if (RESET_FLIGHT_SPEED.wasPressed()) {
-            PlayerAbilities def = new PlayerAbilities();
-            abilities.setFlySpeed(def.getFlySpeed());
-            player.sendMessage(Text.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()), true);
+        if (RESET_FLIGHT_SPEED.consumeClick()) {
+            Abilities def = new Abilities();
+            abilities.setFlyingSpeed(def.getFlyingSpeed());
+            player.displayClientMessage(Component.translatable(RESET_FLIGHT_SPEED_KEY, 1.0f).setStyle(NoClipClient.getTextStyle()), true);
         }
     }
 
-    public static ActionResult onConfigSave(ConfigHolder<NoClipConfig> holder, NoClipConfig config) {
+    public static InteractionResult onConfigSave(ConfigHolder<NoClipConfig> holder, NoClipConfig config) {
         allowedModes = createAllowedModes(config.allowIn);
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private static List<GameMode> createAllowedModes(AllowIn allow) {
-        List<GameMode> list = new ArrayList<>();
-        if (allow.creative) list.add(GameMode.CREATIVE);
-        if (allow.survival) list.add(GameMode.SURVIVAL);
-        if (allow.adventure) list.add(GameMode.ADVENTURE);
-        if (allow.spectator) list.add(GameMode.SPECTATOR);
+    private static List<GameType> createAllowedModes(AllowIn allow) {
+        List<GameType> list = new ArrayList<>();
+        if (allow.creative) list.add(GameType.CREATIVE);
+        if (allow.survival) list.add(GameType.SURVIVAL);
+        if (allow.adventure) list.add(GameType.ADVENTURE);
+        if (allow.spectator) list.add(GameType.SPECTATOR);
         return list;
     }
 }

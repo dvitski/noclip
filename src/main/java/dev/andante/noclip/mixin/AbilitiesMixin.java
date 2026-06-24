@@ -1,26 +1,26 @@
 package dev.andante.noclip.mixin;
 
 import dev.andante.noclip.impl.PlayerAbilitiesAccess;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.Optional;
 
-@Mixin(PlayerAbilities.class)
-public class PlayerAbilitiesMixin implements PlayerAbilitiesAccess {
-    @Unique private PlayerEntity player;
+@Mixin(Abilities.class)
+public class AbilitiesMixin implements PlayerAbilitiesAccess {
+    @Unique private Player player;
 
     @Unique
     @Override
-    public Optional<PlayerEntity> getPlayer() {
+    public Optional<Player> getPlayer() {
         return Optional.ofNullable(this.player);
     }
 
     @Unique
     @Override
-    public void setPlayer(PlayerEntity player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 }

@@ -8,8 +8,8 @@ import dev.andante.noclip.impl.ClippingUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 
 @Environment(EnvType.CLIENT)
 public final class NoClipManagerImpl implements NoClipManager {
@@ -43,7 +43,7 @@ public final class NoClipManagerImpl implements NoClipManager {
         boolean clipping = this.isClipping();
 
         // update client player
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
             ClippingEntity clippingPlayer = ClippingEntity.cast(client.player);
             clippingPlayer.setClipping(clipping);
@@ -67,7 +67,7 @@ public final class NoClipManagerImpl implements NoClipManager {
             boolean clipping = packet.clipping();
 
             clipManager.setClipping(clipping);
-            if (NoClipKeyBindings.ACTIVATE_NOCLIP.isPressed() != clipping) NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(true);
+            if (NoClipKeyBindings.ACTIVATE_NOCLIP.isDown() != clipping) NoClipKeyBindings.ACTIVATE_NOCLIP.setDown(true);
         }
 
         clipManager.updateClipping();
@@ -76,10 +76,10 @@ public final class NoClipManagerImpl implements NoClipManager {
     /**
      * Resets clipping value upon disconnecting a server.
      */
-    public static void onDisconnect(ClientPlayNetworkHandler handler, MinecraftClient client) {
+    public static void onDisconnect(ClientPacketListener handler, Minecraft client) {
         NoClipManager clipManager = NoClipManager.INSTANCE;
         clipManager.setCanClip(false);
         clipManager.setClipping(false);
-        NoClipKeyBindings.ACTIVATE_NOCLIP.setPressed(false);
+        NoClipKeyBindings.ACTIVATE_NOCLIP.setDown(false);
     }
 }

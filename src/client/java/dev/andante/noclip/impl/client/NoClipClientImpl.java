@@ -16,7 +16,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
 public final class NoClipClientImpl implements NoClipClient, ClientModInitializer {
@@ -26,7 +26,7 @@ public final class NoClipClientImpl implements NoClipClient, ClientModInitialize
     public void onInitializeClient() {
         LOGGER.info("Initializing {}-CLIENT", MOD_NAME);
 
-        HudElementRegistry.addLast(Identifier.of(MOD_ID, "hud"), NOCLIP_HUD_RENDERER);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "hud"), NOCLIP_HUD_RENDERER);
 
         Reflection.initialize(NoClipClient.class, NoClipKeyBindings.class, NoClipManager.class);
 

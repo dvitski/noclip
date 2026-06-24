@@ -1,29 +1,29 @@
 package dev.andante.noclip.impl;
 
 import dev.andante.noclip.api.NoClip;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 /**
  * @param canClip ignored by the server
  */
-public record ClippingUpdatePacket(boolean clipping, boolean canClip) implements CustomPayload {
-    public static final PacketCodec<PacketByteBuf, ClippingUpdatePacket> CODEC = CustomPayload.codecOf(ClippingUpdatePacket::write, ClippingUpdatePacket::new);
-    public static final Id<ClippingUpdatePacket> ID = new CustomPayload.Id<>(Identifier.of(NoClip.MOD_ID, "update"));
+public record ClippingUpdatePacket(boolean clipping, boolean canClip) implements CustomPacketPayload {
+    public static final StreamCodec<FriendlyByteBuf, ClippingUpdatePacket> CODEC = CustomPacketPayload.codec(ClippingUpdatePacket::write, ClippingUpdatePacket::new);
+    public static final Type<ClippingUpdatePacket> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(NoClip.MOD_ID, "update"));
 
-    private ClippingUpdatePacket(PacketByteBuf buf) {
+    private ClippingUpdatePacket(FriendlyByteBuf buf) {
         this(buf.readBoolean(), buf.readBoolean());
     }
 
-    private void write(PacketByteBuf buf) {
+    private void write(FriendlyByteBuf buf) {
         buf.writeBoolean(this.clipping);
         buf.writeBoolean(this.canClip);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

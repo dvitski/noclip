@@ -3,8 +3,8 @@ package dev.andante.noclip.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.andante.noclip.impl.ClippingEntity;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.material.PushReaction;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Entity.class)
@@ -12,11 +12,11 @@ public abstract class EntityMixin {
     /**
      * Makes pistons and shulker boxes ignore clipping entities.
      */
-    @WrapMethod(method = "getPistonBehavior")
-    private PistonBehavior onGetPistonBehavior(Operation<PistonBehavior> original) {
+    @WrapMethod(method = "getPistonPushReaction")
+    private PushReaction onGetPistonBehavior(Operation<PushReaction> original) {
         Entity that = (Entity) (Object) this;
         if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {
-            return PistonBehavior.IGNORE;
+            return PushReaction.IGNORE;
         }
 
         return original.call();
@@ -25,7 +25,7 @@ public abstract class EntityMixin {
     /**
      * Cancels fire rendering when clipping.
      */
-    @WrapMethod(method = "doesRenderOnFire")
+    @WrapMethod(method = "displayFireAnimation")
     private boolean onDoesRenderOnFire(Operation<Boolean> original) {
         Entity that = (Entity) (Object) this;
         if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {
@@ -38,7 +38,7 @@ public abstract class EntityMixin {
     /**
      * Cancels enabling sneak when clipping.
      */
-    @WrapMethod(method = "isInSneakingPose")
+    @WrapMethod(method = "isCrouching")
     private boolean onIsInSneakingPose(Operation<Boolean> original) {
         Entity that = (Entity) (Object) this;
         if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {
@@ -48,7 +48,7 @@ public abstract class EntityMixin {
         return original.call();
     }
 
-    @WrapMethod(method = "getFinalGravity")
+    @WrapMethod(method = "getGravity")
     private double onGetFinalGravity(Operation<Double> original) {
         Entity that = (Entity) (Object) this;
         if (that instanceof ClippingEntity clippingEntity && clippingEntity.isClipping()) {

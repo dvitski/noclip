@@ -1,74 +1,74 @@
 package dev.andante.noclip.api.client.render;
 
+import com.mojang.blaze3d.platform.Window;
 import dev.andante.noclip.api.NoClip;
 import dev.andante.noclip.api.client.NoClipClient;
 import dev.andante.noclip.api.client.NoClipManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.Window;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.ColorHelper;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import static net.minecraft.util.math.MathHelper.abs;
-import static net.minecraft.util.math.MathHelper.sin;
+import static net.minecraft.util.Mth.abs;
+import static net.minecraft.util.Mth.sin;
 
 /**
  * Responsible for rendering an indicator on the hud of the player's current clipping state.
  */
 @Environment(EnvType.CLIENT)
 public class NoClipHud implements HudElement {
-    public static final Identifier TEXTURE = Identifier.of(NoClip.MOD_ID, "textures/hud/noclip.png");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(NoClip.MOD_ID, "textures/hud/noclip.png");
 
     private long fade = -1;
     private String activeDebugLine;
 
     @Override
-    public void render(DrawContext context, RenderTickCounter renderTickCounter) {
+    public void render(GuiGraphics context, DeltaTracker renderTickCounter) {
         if (!NoClipManager.INSTANCE.isClipping() || !NoClipClient.getConfig().display.hudIcon) {
             this.fade = -1;
             return;
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         Window window =  client.getWindow();
-        int scaledWidth = window.getScaledWidth();
+        int scaledWidth = window.getGuiScaledWidth();
 
         // calculate effects
-        Collection<StatusEffectInstance> effects = client.player.getStatusEffects();
-        boolean hasStatusEffect = effects.stream().anyMatch(StatusEffectInstance::shouldShowIcon);
+        Collection<MobEffectInstance> effects = client.player.getActiveEffects();
+        boolean hasStatusEffect = effects.stream().anyMatch(MobEffectInstance::showIcon);
         boolean hasNonBeneficialEffect = effects.stream()
-                .filter(StatusEffectInstance::shouldShowIcon)
-                .map(StatusEffectInstance::getEffectType)
-                .map(RegistryEntry::value)
-                .anyMatch(Predicate.not(StatusEffect::isBeneficial));
+                .filter(MobEffectInstance::showIcon)
+                .map(MobEffectInstance::getEffect)
+                .map(Holder::value)
+                .anyMatch(Predicate.not(MobEffect::isBeneficial));
 
         // render
-        long ms = Util.getMeasuringTimeMs();
+        long ms = Util.getMillis();
         float interval = 1000f;
         if (this.fade == -1) this.fade = ms + (long) interval;
         float alpha = abs(sin((ms - this.fade) / interval)) + 0.2F;
 
-        if (client.inGameHud.getDebugHud().shouldShowDebugHud()) {
-            this.renderIcon(context, scaledWidth - 18 - (client.textRenderer.getWidth(this.activeDebugLine) + 4), client.textRenderer.fontHeight + 1, ColorHelper.getWhite(alpha));
+        if (client.gui.getDebugOverlay().showDebugScreen()) {
+            this.renderIcon(context, scaledWidth - 18 - (client.font.width(this.activeDebugLine) + 4), client.font.lineHeight + 1, ARGB.white(alpha));
         } else {
-            this.renderIcon(context, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ColorHelper.getWhite(alpha));
+            this.renderIcon(context, scaledWidth - 18 - 2, (2 + (hasStatusEffect ? 25 + (hasNonBeneficialEffect ? 25 + 1 : 0) : 0)), ARGB.white(alpha));
         }
     }
 
-    public void renderIcon(DrawContext context, int x, int y, int color) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, 18, 18, 18, 18, color);
+    public void renderIcon(GuiGraphics context, int x, int y, int color) {
+        context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, 18, 18, 18, 18, color);
     }
 
     public void setActiveDebugLine(String activeDebugLine) {
